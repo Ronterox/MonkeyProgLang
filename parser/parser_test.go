@@ -159,6 +159,7 @@ func TestIfElseExpression(t *testing.T) {
 
 	if exp.TokenLiteral() != "if" {
 		t.Errorf("Expected TokenLiteral to be if, got %s", exp.TokenLiteral())
+		return
 	}
 
 	if !testInfixExpression(t, exp.Condition, "x", "<", "y") {
@@ -191,6 +192,94 @@ func TestIfElseExpression(t *testing.T) {
 
 	if !testLiteralExpression(t, blockIfElseStmt.Expression, "y") {
 		return
+	}
+}
+
+func TestFunctionLiteral(t *testing.T) {
+	input := "fn(x, y) { x + y }"
+	l := lexer.New(input)
+	p := New(l)
+
+	program := p.ParseProgram()
+	checkParseErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Errorf("Expected 1 statement, got %d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Errorf("Expected ExpressionStatement, got %T", program.Statements[0])
+		return
+	}
+
+	exp, ok := stmt.Expression.(*ast.FunctionLiteral)
+	if !ok {
+		t.Errorf("Expected FunctionLiteral, got %T", exp)
+		return
+	}
+
+	if exp.TokenLiteral() != "fn" {
+		t.Errorf("Expected TokenLiteral to be fn, got %s", exp.TokenLiteral())
+		return
+	}
+
+	if len(exp.Parameters) != 2 {
+		t.Errorf("Expected length of parameters to be 2, got %d", len(exp.Parameters))
+		return
+	}
+
+	if !testLiteralExpression(t, exp.Parameters[0], "x") {
+		return
+	}
+	if !testLiteralExpression(t, exp.Parameters[1], "y") {
+		return
+	}
+
+	if len(exp.Body.Statements) != 1 {
+		t.Errorf("Expected Body.Statements to have length of 1, got %d", len(exp.Body.Statements))
+		return
+	}
+
+	bodyStmt, ok := exp.Body.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Errorf("Expected ExpressionStatement got %T", bodyStmt)
+		return
+	}
+
+	testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
+}
+
+func TestFunctionParameters(t *testing.T) {
+	tests := []struct {
+		input          string
+		expectedParams []string
+	}{
+		{input: "fn() {};", expectedParams: []string{}},
+		{input: "fn(x) {};", expectedParams: []string{"x"}},
+		{input: "fn(x, y, z) {};", expectedParams: []string{"x", "y", "z"}},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+
+		program := p.ParseProgram()
+		checkParseErrors(t, p)
+
+		stmt := program.Statements[0].(*ast.ExpressionStatement)
+		exp := stmt.Expression.(*ast.FunctionLiteral)
+
+		if len(exp.Parameters) != len(tt.expectedParams) {
+			t.Errorf("Expected length of parameters to be %d, got %d", len(tt.expectedParams), len(exp.Parameters))
+			return
+		}
+
+		for i, p := range tt.expectedParams {
+			if !testLiteralExpression(t, exp.Parameters[i], p) {
+				return
+			}
+		}
 	}
 }
 

@@ -3,6 +3,7 @@ package ast
 import (
 	"bytes"
 	"monkey/token"
+	"strings"
 )
 
 type Node interface {
@@ -196,7 +197,7 @@ type FunctionLiteral struct {
 }
 
 func (fl *FunctionLiteral) expressionNode()      {}
-func (fl *FunctionLiteral) TokenLiteral() string { return ie.Token.Literal }
+func (fl *FunctionLiteral) TokenLiteral() string { return fl.Token.Literal }
 func (fl *FunctionLiteral) String() string {
 	var out bytes.Buffer
 
@@ -206,6 +207,10 @@ func (fl *FunctionLiteral) String() string {
 	}
 
 	out.WriteString(fl.TokenLiteral())
+	out.WriteString(token.LPAREN)
+	out.WriteString(strings.Join(params, ","))
+	out.WriteString(token.RPAREN + " ")
+	out.WriteString(fl.Body.String())
 
 	return out.String()
 }
