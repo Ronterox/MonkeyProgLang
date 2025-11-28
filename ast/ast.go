@@ -208,7 +208,7 @@ func (fl *FunctionLiteral) String() string {
 
 	out.WriteString(fl.TokenLiteral())
 	out.WriteString(token.LPAREN)
-	out.WriteString(strings.Join(params, ","))
+	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(token.RPAREN + " ")
 	out.WriteString(fl.Body.String())
 
@@ -233,7 +233,7 @@ func (ce *CallExpression) String() string {
 
 	out.WriteString(ce.Function.String())
 	out.WriteString(token.LPAREN)
-	out.WriteString(strings.Join(args, ","))
+	out.WriteString(strings.Join(args, ", "))
 	out.WriteString(token.RPAREN)
 
 	return out.String()
