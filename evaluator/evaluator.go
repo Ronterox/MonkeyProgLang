@@ -17,6 +17,13 @@ func newError(format string, a ...any) *object.Error {
 	return &object.Error{Message: fmt.Sprintf(format, a...)}
 }
 
+func isError(obj object.Object) bool {
+	if obj != nil {
+		return obj.Type() == object.ERROR
+	}
+	return false
+}
+
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
@@ -52,6 +59,9 @@ func Eval(node ast.Node) object.Object {
 		return FALSE
 	case *ast.PrefixExpression:
 		right := Eval(node.Right)
+		if isError(right) {
+			return right
+		}
 
 		switch node.Operator {
 		case token.BANG:
@@ -81,7 +91,14 @@ func Eval(node ast.Node) object.Object {
 		return NULL
 	case *ast.InfixExpression:
 		left := Eval(node.Left)
+		if isError(left) {
+			return left
+		}
+
 		right := Eval(node.Right)
+		if isError(right) {
+			return right
+		}
 
 		if left.Type() == object.INTEGER && right.Type() == object.INTEGER {
 			left := left.(*object.Integer)
@@ -137,6 +154,10 @@ func Eval(node ast.Node) object.Object {
 		return newError("Operation %s between %s and %s not implemented!", node.Operator, left.Type(), right.Type())
 	case *ast.IfExpression:
 		cond := Eval(node.Condition)
+		if isError(cond) {
+			return cond
+		}
+
 		switch cond := cond.(type) {
 		case *object.Boolean:
 			if cond == TRUE {
@@ -152,7 +173,11 @@ func Eval(node ast.Node) object.Object {
 		}
 		return NULL
 	case *ast.ReturnStatement:
-		return &object.Return{Value: Eval(node.RetValue)}
+		ret := Eval(node.RetValue)
+		if isError(ret) {
+			return ret
+		}
+		return &object.Return{Value: ret}
 	}
 	return newError("Not implemented eval for %T!", node)
 }
