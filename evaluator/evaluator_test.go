@@ -7,6 +7,60 @@ import (
 	"testing"
 )
 
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		input           string
+		expectedMessage string
+	}{
+		{
+			"5 + true;",
+			"Operation + between INTEGER and BOOLEAN not implemented!",
+		},
+		{
+			"5 + true; 5;",
+			"Operation + between INTEGER and BOOLEAN not implemented!",
+		},
+		{
+			"-true",
+			"Not implemented - for BOOLEAN",
+		},
+		{
+			"true + false;",
+			"Operation + between BOOLEAN and BOOLEAN not implemented!",
+		},
+		{
+			"5; true + false; 5",
+			"Operation + between BOOLEAN and BOOLEAN not implemented!",
+		},
+		{
+			"if (10 > 1) { true + false; }",
+			"Operation + between BOOLEAN and BOOLEAN not implemented!",
+		},
+		{
+			`
+			if (10 > 1) {
+				if (10 > 1) {
+					return true + false;
+				}
+				return 1;
+			}
+			`,
+			"Operation + between BOOLEAN and BOOLEAN not implemented!",
+		},
+	}
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		errObj, ok := evaluated.(*object.Error)
+		if !ok {
+			t.Errorf("no error object returned. got=%T(%+v)", evaluated, evaluated)
+			continue
+		}
+		if errObj.Message != tt.expectedMessage {
+			t.Errorf("wrong error message. expected=%q, got=%q", tt.expectedMessage, errObj.Message)
+		}
+	}
+}
+
 func TestEvalIfExpression(t *testing.T) {
 	tests := []struct {
 		input    string

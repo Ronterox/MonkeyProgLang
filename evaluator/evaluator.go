@@ -13,14 +13,21 @@ var (
 	NULL  = &object.Null{}
 )
 
+func newError(format string, a ...any) *object.Error {
+	return &object.Error{Message: fmt.Sprintf(format, a...)}
+}
+
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		var result object.Object
 		for _, stmt := range node.Statements {
 			result = Eval(stmt)
-			if ret, ok := result.(*object.Return); ok {
-				return ret.Value
+			switch result := result.(type) {
+			case *object.Return:
+				return result.Value
+			case *object.Error:
+				return result
 			}
 		}
 		return result
@@ -28,7 +35,8 @@ func Eval(node ast.Node) object.Object {
 		var result object.Object
 		for _, stmt := range node.Statements {
 			result = Eval(stmt)
-			if _, ok := result.(*object.Return); ok {
+			switch result.(type) {
+			case *object.Return, *object.Error:
 				return result
 			}
 		}
@@ -59,14 +67,14 @@ func Eval(node ast.Node) object.Object {
 				}
 				return TRUE
 			default:
-				return NULL
+				return newError("Not implemented %s for %s", token.BANG, right.Type())
 			}
 		case token.MINUS:
 			switch right := right.(type) {
 			case *object.Integer:
 				return &object.Integer{Value: -right.Value}
 			}
-			return NULL
+			return newError("Not implemented %s for %s", token.MINUS, right.Type())
 		}
 
 		fmt.Printf("Not implemented operator %s!\n", node.Operator)
@@ -126,9 +134,7 @@ func Eval(node ast.Node) object.Object {
 				return FALSE
 			}
 		}
-
-		fmt.Printf("Operation %s between %s and %s not implemented!\n", node.Operator, left.Type(), right.Type())
-		return NULL
+		return newError("Operation %s between %s and %s not implemented!", node.Operator, left.Type(), right.Type())
 	case *ast.IfExpression:
 		cond := Eval(node.Condition)
 		switch cond := cond.(type) {
@@ -148,6 +154,5 @@ func Eval(node ast.Node) object.Object {
 	case *ast.ReturnStatement:
 		return &object.Return{Value: Eval(node.RetValue)}
 	}
-	fmt.Printf("Not implemented eval for %T!\n", node)
-	return NULL
+	return newError("Not implemented eval for %T!", node)
 }
