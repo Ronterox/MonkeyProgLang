@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"monkey/ast"
 	"monkey/object"
+	"monkey/token"
 )
 
 func Eval(node ast.Node) object.Object {
@@ -20,6 +21,38 @@ func Eval(node ast.Node) object.Object {
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
 		return &object.Boolean{Value: node.Value}
+	case *ast.PrefixExpression:
+		right := Eval(node.Right)
+
+		switch node.Operator {
+		case token.BANG:
+			result := &object.Boolean{}
+
+			switch right := right.(type) {
+			case *object.Integer:
+				result.Value = !(right.Value > 0)
+			case *object.Boolean:
+				result.Value = !right.Value
+			default:
+				return &object.Null{}
+			}
+
+			return result
+		case token.MINUS:
+			result := &object.Integer{}
+
+			switch right := right.(type) {
+			case *object.Integer:
+				result.Value = -right.Value
+			default:
+				return &object.Null{}
+			}
+
+			return result
+		}
+
+		fmt.Printf("Not implemented %s!\n", node.Operator)
+		return &object.Null{}
 	}
 	fmt.Printf("Not implemented %T!\n", node)
 	return &object.Null{}
