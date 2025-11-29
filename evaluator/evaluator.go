@@ -201,6 +201,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			if len(node.Arguments) < len(fn.Parameters) {
 				return newError("function missing %d parameters", len(fn.Parameters)-len(node.Arguments))
 			}
+
 			fnEnv := env.SmartCopy()
 			for i, p := range fn.Parameters {
 				arg := Eval(node.Arguments[i], fnEnv)
@@ -209,7 +210,12 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 				}
 				fnEnv.Set(p.Value, arg)
 			}
-			return Eval(fn.Body, fnEnv)
+
+			ret := Eval(fn.Body, fnEnv)
+			if ret, ok := ret.(*object.Return); ok {
+				return ret.Value
+			}
+			return ret
 		}
 
 		return newError("expected FUNCTION call got %s call!", caller.Type())
