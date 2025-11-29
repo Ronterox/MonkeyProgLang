@@ -235,6 +235,36 @@ func TestEvalInteger(t *testing.T) {
 	}
 }
 
+func TestEvalString(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`"foobar"`, "foobar"},
+		{`"foo and bar"`, "foo and bar"},
+		{`"foo\nand\nbar"`, "foo\\nand\\nbar"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testString(t, evaluated, tt.expected)
+	}
+}
+
+func testString(t *testing.T, evaluated object.Object, expected string) bool {
+	obj, ok := evaluated.(*object.String)
+	if !ok {
+		t.Errorf("expected String got %T=(%v)", evaluated, evaluated)
+		return false
+	}
+
+	if obj.Value != expected {
+		t.Errorf("expected %s got %s", expected, obj.Value)
+		return false
+	}
+	return true
+}
+
 func TestEvalBoolean(t *testing.T) {
 	tests := []struct {
 		input    string

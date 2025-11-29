@@ -52,7 +52,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return Eval(node.Expression, env)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
-	case *ast.Boolean:
+	case *ast.BooleanLiteral:
 		if node.Value {
 			return TRUE
 		}
@@ -202,6 +202,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 				return newError("function missing %d parameters", len(fn.Parameters)-len(node.Arguments))
 			}
 
+			// TODO: Understand this fucking recursion
 			fnEnv := fn.Env.SmartCopy()
 			for i, p := range fn.Parameters {
 				arg := Eval(node.Arguments[i], fnEnv)
@@ -219,6 +220,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 
 		return newError("expected FUNCTION call got %s call!", caller.Type())
+	case *ast.StringLiteral:
+		return &object.String{Value: node.Value}
 	}
 	return newError("Not implemented eval for %T!", node)
 }

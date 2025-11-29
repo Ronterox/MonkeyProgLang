@@ -14,6 +14,7 @@ const (
 	NULL     = "NULL"
 	ERROR    = "ERROR"
 	FUNCTION = "FUNCTION"
+	STRING   = "STRING"
 )
 
 type ObjectType string
@@ -80,3 +81,10 @@ func (f *Function) Inspect() string {
 
 	return out.String()
 }
+
+type String struct {
+	Value string
+}
+
+func (s *String) Type() ObjectType { return STRING }
+func (s *String) Inspect() string  { return s.Value }

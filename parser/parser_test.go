@@ -51,6 +51,29 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	}
 }
 
+func TestStringLiteralExpression(t *testing.T) {
+	input := `"foobar";`
+	l := lexer.New(input)
+	p := New(l)
+
+	program := p.ParseProgram()
+	checkParseErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Errorf("Expected 1 statement, got %d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Errorf("Expected ExpressionStatement, got %T", program.Statements[0])
+		return
+	}
+
+	if !testLiteralExpression(t, stmt.Expression, `"foobar"`) {
+		return
+	}
+}
+
 func TestBooleanExpression(t *testing.T) {
 	input := "true;"
 	l := lexer.New(input)
@@ -566,6 +589,9 @@ func testLiteralExpression(t *testing.T, exp ast.Expression, expected any) bool 
 	case int64:
 		return testIntegerLiteral(t, exp, v)
 	case string:
+		if v[0] == '"' {
+			return testString(t, exp, v)
+		}
 		return testIdentifier(t, exp, v)
 	case bool:
 		return testBoolean(t, exp, v)
@@ -574,8 +600,23 @@ func testLiteralExpression(t *testing.T, exp ast.Expression, expected any) bool 
 	return false
 }
 
+func testString(t *testing.T, exp ast.Expression, v string) bool {
+	lit, ok := exp.(*ast.StringLiteral)
+	if !ok {
+		t.Errorf("expected String got %T", exp)
+		return false
+	}
+
+	if fmt.Sprintf(`"%s"`, lit.Value) != v {
+		t.Errorf("expected String '%s' got '%s'", v, fmt.Sprintf(`"%s"`, lit.Value))
+		return false
+	}
+
+	return true
+}
+
 func testBoolean(t *testing.T, exp ast.Expression, v bool) bool {
-	opExp, ok := exp.(*ast.Boolean)
+	opExp, ok := exp.(*ast.BooleanLiteral)
 	if !ok {
 		t.Errorf("Expected BooleanExpression, got %T", exp)
 		return false

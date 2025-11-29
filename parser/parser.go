@@ -62,6 +62,7 @@ func New(lexer *lexer.Lexer) *Parser {
 	p.prefixParseFns[token.LPAREN] = p.parseGroupedExpression
 	p.prefixParseFns[token.IF] = p.parseIfElseExpression
 	p.prefixParseFns[token.FUNCTION] = p.parseFunctionExpression
+	p.prefixParseFns[token.STRING] = p.parseString
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.infixParseFns[token.PLUS] = p.parseInfixExpression
@@ -220,12 +221,16 @@ func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 	return block
 }
 
+func (p *Parser) parseString() ast.Expression {
+	return &ast.StringLiteral{Token: p.currToken, Value: p.currToken.Literal}
+}
+
 func (p *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: p.currToken, Value: p.currToken.Literal}
 }
 
 func (p *Parser) parseBooleanExpression() ast.Expression {
-	return &ast.Boolean{Token: p.currToken, Value: p.currTokenIs(token.TRUE)}
+	return &ast.BooleanLiteral{Token: p.currToken, Value: p.currTokenIs(token.TRUE)}
 }
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
