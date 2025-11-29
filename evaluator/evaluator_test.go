@@ -106,6 +106,18 @@ func TestErrorHandling(t *testing.T) {
 	}
 }
 
+func TestStringConcatenation(t *testing.T) {
+	input := `"Hello" + " " + "World!"`
+	evaluated := testEval(input)
+	str, ok := evaluated.(*object.String)
+	if !ok {
+		t.Fatalf("object is not String. got=%T (%+v)", evaluated, evaluated)
+	}
+	if str.Value != "Hello World!" {
+		t.Errorf("String has wrong value. got=%q", str.Value)
+	}
+}
+
 func TestEvalIfExpression(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -115,7 +127,7 @@ func TestEvalIfExpression(t *testing.T) {
 		{"if (false) { 2 }", nil},
 		{"if (1 < 2) { 10 }", 10},
 		{"if (1) { 10 * 2 }", 20},
-		// {"if (null) { 3 }", nil},
+		{"if (null) { 3 }", nil},
 		{"if (0) { 2 } else { 5 }", 5},
 		{"if (0 + 1) { 3 } else { 5 }", 3},
 	}

@@ -150,6 +150,16 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 				}
 				return FALSE
 			}
+		} else if left.Type() == object.STRING && right.Type() == object.STRING {
+			left := left.(*object.String)
+			right := right.(*object.String)
+
+			switch node.Operator {
+			case token.PLUS:
+				return &object.String{Value: left.Value + right.Value}
+				// case token.MINUS:
+				// 	return &object.String{Value: ""}
+			}
 		}
 		return newError("Operation %s between %s and %s not implemented!", node.Operator, left.Type(), right.Type())
 	case *ast.IfExpression:
@@ -185,6 +195,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		return env.Set(node.Name.Value, value)
 	case *ast.Identifier:
+		if node.Value == "null" {
+			return NULL
+		}
 		if value, ok := env.Get(node.Value); ok {
 			return value
 		}
