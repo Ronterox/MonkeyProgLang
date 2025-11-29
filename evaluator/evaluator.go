@@ -13,20 +13,24 @@ var (
 	NULL  = &object.Null{}
 )
 
+func evalStatements(statements []ast.Statement) object.Object {
+	var result object.Object
+	for _, stmt := range statements {
+		result = Eval(stmt)
+		ret, ok := result.(*object.Return)
+		if ok {
+			return ret.Value
+		}
+	}
+	return result
+}
+
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
-		var result object.Object
-		for _, stmt := range node.Statements {
-			result = Eval(stmt)
-		}
-		return result
+		return evalStatements(node.Statements)
 	case *ast.BlockStatement:
-		var result object.Object
-		for _, stmt := range node.Statements {
-			result = Eval(stmt)
-		}
-		return result
+		return evalStatements(node.Statements)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
 	case *ast.IntegerLiteral:
@@ -144,6 +148,8 @@ func Eval(node ast.Node) object.Object {
 			return Eval(node.Alternative)
 		}
 		return NULL
+	case *ast.ReturnStatement:
+		return &object.Return{Value: Eval(node.RetValue)}
 	}
 	fmt.Printf("Not implemented eval for %T!\n", node)
 	return NULL

@@ -16,6 +16,7 @@ func TestEvalIfExpression(t *testing.T) {
 		{"if (false) { 2 }", nil},
 		{"if (1 < 2) { 10 }", 10},
 		{"if (1) { 10 * 2 }", 20},
+		{"if (null) { 3 }", nil},
 		{"if (0) { 2 } else { 5 }", 5},
 		{"if (0 + 1) { 3 } else { 5 }", 3},
 	}
@@ -37,6 +38,22 @@ func testNull(t *testing.T, evaluated object.Object) bool {
 		return false
 	}
 	return true
+}
+
+func TestReturnStatements(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"return 10;", 10},
+		{"return 10; 9;", 10},
+		{"return 2 * 5; 9;", 10},
+		{"9; return 2 * 5; 9;", 10},
+	}
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testInteger(t, evaluated, tt.expected)
+	}
 }
 
 func TestEvalInteger(t *testing.T) {
