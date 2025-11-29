@@ -222,6 +222,7 @@ func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 }
 
 func (p *Parser) parseString() ast.Expression {
+	// TODO: Get all the following string literals
 	return &ast.StringLiteral{Token: p.currToken, Value: p.currToken.Literal}
 }
 

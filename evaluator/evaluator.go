@@ -157,6 +157,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			switch node.Operator {
 			case token.PLUS:
 				return &object.String{Value: left.Value + right.Value}
+				// TODO: I want to remove the pattern from the right side
 				// case token.MINUS:
 				// 	return &object.String{Value: ""}
 			}
