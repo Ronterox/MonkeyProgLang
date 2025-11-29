@@ -7,6 +7,24 @@ import (
 	"testing"
 )
 
+func TestEvalIfExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"if (true) { 5 }", 5},
+		{"if (1 < 2) { 10 }", 10},
+		{"if (1) { 10 * 2 }", 20},
+		{"if (0) { 2 } else { 5 }", 5},
+		{"if (0 + 1) { 3 } else { 5 }", 3},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testInteger(t, evaluated, tt.expected)
+	}
+}
+
 func TestEvalInteger(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -48,6 +66,12 @@ func TestEvalBoolean(t *testing.T) {
 		{"2 < 3", true},
 		{"3 > 2", true},
 		{"1 != 0", true},
+		{"(1 < 2) == true", true},
+		{"(1 < 2) != false", true},
+		{"true != false", true},
+		{"false == true", false},
+		{"true == true", true},
+		{"false == false", true},
 	}
 
 	for _, tt := range tests {

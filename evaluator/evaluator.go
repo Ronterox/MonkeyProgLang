@@ -21,6 +21,12 @@ func Eval(node ast.Node) object.Object {
 			result = Eval(stmt)
 		}
 		return result
+	case *ast.BlockStatement:
+		var result object.Object
+		for _, stmt := range node.Statements {
+			result = Eval(stmt)
+		}
+		return result
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
 	case *ast.IntegerLiteral:
@@ -71,17 +77,16 @@ func Eval(node ast.Node) object.Object {
 		if left.Type() == object.INTEGER && right.Type() == object.INTEGER {
 			left := left.(*object.Integer)
 			right := right.(*object.Integer)
-			result := &object.Integer{}
 
 			switch node.Operator {
 			case token.PLUS:
-				result.Value = left.Value + right.Value
+				return &object.Integer{Value: left.Value + right.Value}
 			case token.ASTERISK:
-				result.Value = left.Value * right.Value
+				return &object.Integer{Value: left.Value * right.Value}
 			case token.MINUS:
-				result.Value = left.Value - right.Value
+				return &object.Integer{Value: left.Value - right.Value}
 			case token.SLASH:
-				result.Value = left.Value / right.Value
+				return &object.Integer{Value: left.Value / right.Value}
 			case token.GT:
 				if left.Value > right.Value {
 					return TRUE
@@ -103,10 +108,41 @@ func Eval(node ast.Node) object.Object {
 				}
 				return FALSE
 			}
-			return result
+		} else if left.Type() == object.BOOLEAN && right.Type() == object.BOOLEAN {
+			left := left.(*object.Boolean)
+			right := right.(*object.Boolean)
+
+			switch node.Operator {
+			case token.EQ:
+				if left.Value == right.Value {
+					return TRUE
+				}
+				return FALSE
+			case token.NE:
+				if left.Value != right.Value {
+					return TRUE
+				}
+				return FALSE
+			}
 		}
 
-		fmt.Printf("Sum between %s and %s not implemented!\n", left.Type(), right.Type())
+		fmt.Printf("Operation %s between %s and %s not implemented!\n", node.Operator, left.Type(), right.Type())
+		return &object.Null{}
+	case *ast.IfExpression:
+		cond := Eval(node.Condition)
+		switch cond := cond.(type) {
+		case *object.Boolean:
+			if cond == TRUE {
+				return Eval(node.Consequence)
+			} else if node.Alternative != nil {
+				return Eval(node.Alternative)
+			}
+		case *object.Integer:
+			if cond.Value > 0 {
+				return Eval(node.Consequence)
+			}
+			return Eval(node.Alternative)
+		}
 		return &object.Null{}
 	}
 	fmt.Printf("Not implemented eval for %T!\n", node)
