@@ -13,24 +13,26 @@ var (
 	NULL  = &object.Null{}
 )
 
-func evalStatements(statements []ast.Statement) object.Object {
-	var result object.Object
-	for _, stmt := range statements {
-		result = Eval(stmt)
-		ret, ok := result.(*object.Return)
-		if ok {
-			return ret.Value
-		}
-	}
-	return result
-}
-
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
-		return evalStatements(node.Statements)
+		var result object.Object
+		for _, stmt := range node.Statements {
+			result = Eval(stmt)
+			if ret, ok := result.(*object.Return); ok {
+				return ret.Value
+			}
+		}
+		return result
 	case *ast.BlockStatement:
-		return evalStatements(node.Statements)
+		var result object.Object
+		for _, stmt := range node.Statements {
+			result = Eval(stmt)
+			if _, ok := result.(*object.Return); ok {
+				return result
+			}
+		}
+		return result
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
 	case *ast.IntegerLiteral:
@@ -60,16 +62,11 @@ func Eval(node ast.Node) object.Object {
 				return NULL
 			}
 		case token.MINUS:
-			result := &object.Integer{}
-
 			switch right := right.(type) {
 			case *object.Integer:
-				result.Value = -right.Value
-			default:
-				return NULL
+				return &object.Integer{Value: -right.Value}
 			}
-
-			return result
+			return NULL
 		}
 
 		fmt.Printf("Not implemented operator %s!\n", node.Operator)
