@@ -202,11 +202,12 @@ func TestReturnStatements(t *testing.T) {
 
 func TestClosures(t *testing.T) {
 	input := `
-			let newAdder = fn(x) {
+		let newAdder = fn(x) {
 			fn(y) { x + y };
-			};
-			let addTwo = newAdder(2);
-			addTwo(2);`
+		};
+		let addTwo = newAdder(2);
+		addTwo(2);
+	`
 	testInteger(t, testEval(input), 4)
 }
 

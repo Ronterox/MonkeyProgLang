@@ -202,7 +202,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 				return newError("function missing %d parameters", len(fn.Parameters)-len(node.Arguments))
 			}
 
-			fnEnv := env.SmartCopy()
+			fnEnv := fn.Env.SmartCopy()
 			for i, p := range fn.Parameters {
 				arg := Eval(node.Arguments[i], fnEnv)
 				if isError(arg) {
