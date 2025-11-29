@@ -53,7 +53,7 @@ func Eval(node ast.Node) object.Object {
 				}
 				return TRUE
 			default:
-				return &object.Null{}
+				return NULL
 			}
 		case token.MINUS:
 			result := &object.Integer{}
@@ -62,14 +62,14 @@ func Eval(node ast.Node) object.Object {
 			case *object.Integer:
 				result.Value = -right.Value
 			default:
-				return &object.Null{}
+				return NULL
 			}
 
 			return result
 		}
 
 		fmt.Printf("Not implemented operator %s!\n", node.Operator)
-		return &object.Null{}
+		return NULL
 	case *ast.InfixExpression:
 		left := Eval(node.Left)
 		right := Eval(node.Right)
@@ -127,7 +127,7 @@ func Eval(node ast.Node) object.Object {
 		}
 
 		fmt.Printf("Operation %s between %s and %s not implemented!\n", node.Operator, left.Type(), right.Type())
-		return &object.Null{}
+		return NULL
 	case *ast.IfExpression:
 		cond := Eval(node.Condition)
 		switch cond := cond.(type) {
@@ -143,8 +143,8 @@ func Eval(node ast.Node) object.Object {
 			}
 			return Eval(node.Alternative)
 		}
-		return &object.Null{}
+		return NULL
 	}
 	fmt.Printf("Not implemented eval for %T!\n", node)
-	return &object.Null{}
+	return NULL
 }

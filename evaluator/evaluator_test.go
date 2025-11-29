@@ -10,9 +10,10 @@ import (
 func TestEvalIfExpression(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected int64
+		expected any
 	}{
 		{"if (true) { 5 }", 5},
+		{"if (false) { 2 }", nil},
 		{"if (1 < 2) { 10 }", 10},
 		{"if (1) { 10 * 2 }", 20},
 		{"if (0) { 2 } else { 5 }", 5},
@@ -21,8 +22,21 @@ func TestEvalIfExpression(t *testing.T) {
 
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
-		testInteger(t, evaluated, tt.expected)
+		integer, ok := tt.expected.(int)
+		if ok {
+			testInteger(t, evaluated, int64(integer))
+		} else {
+			testNull(t, evaluated)
+		}
 	}
+}
+
+func testNull(t *testing.T, evaluated object.Object) bool {
+	if evaluated != NULL {
+		t.Errorf("expected Null got %T", evaluated)
+		return false
+	}
+	return true
 }
 
 func TestEvalInteger(t *testing.T) {
