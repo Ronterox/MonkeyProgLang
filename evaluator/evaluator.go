@@ -196,11 +196,28 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		return env.Set(node.Name.Value, value)
 	case *ast.Identifier:
-		if node.Value == "null" {
+		switch node.Value {
+		case "null":
 			return NULL
-		}
-		if value, ok := env.Get(node.Value); ok {
-			return value
+		case "len":
+			return &object.Builtin{
+				Fn: func(args ...object.Object) object.Object {
+					if len(args) != 1 {
+						return newError("wrong number of arguments. got=%d, want=1", len(args))
+					}
+					// NOTE: Is it faster to compare type or string?
+					switch obj := args[0].(type) {
+					case *object.String:
+						// NOTE: Maybe I don't need 64 as basis bruh
+						return &object.Integer{Value: int64(len(obj.Value))}
+					}
+					return newError("argument to `len` not supported, got %s", args[0].Type())
+				},
+			}
+		default:
+			if value, ok := env.Get(node.Value); ok {
+				return value
+			}
 		}
 		return newError("identifier not found: %s", node.Value)
 	case *ast.FunctionLiteral:
@@ -209,6 +226,18 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		caller := Eval(node.Function, env)
 		if isError(caller) {
 			return caller
+		}
+
+		if fn, ok := caller.(*object.Builtin); ok {
+			args := []object.Object{}
+			for _, a := range node.Arguments {
+				arg := Eval(a, env)
+				if isError(arg) {
+					return arg
+				}
+				args = append(args, arg)
+			}
+			return fn.Fn(args...)
 		}
 
 		if fn, ok := caller.(*object.Function); ok {
