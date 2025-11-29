@@ -7,6 +7,12 @@ import (
 	"monkey/token"
 )
 
+var (
+	TRUE  = &object.Boolean{Value: true}
+	FALSE = &object.Boolean{Value: false}
+	NULL  = &object.Null{}
+)
+
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
@@ -30,9 +36,15 @@ func Eval(node ast.Node) object.Object {
 
 			switch right := right.(type) {
 			case *object.Integer:
-				result.Value = !(right.Value > 0)
+				if !(right.Value > 0) {
+					return TRUE
+				}
+				return FALSE
 			case *object.Boolean:
-				result.Value = !right.Value
+				if right == TRUE {
+					return FALSE
+				}
+				return TRUE
 			default:
 				return &object.Null{}
 			}
