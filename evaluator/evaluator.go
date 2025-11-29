@@ -62,7 +62,7 @@ func Eval(node ast.Node) object.Object {
 			return result
 		}
 
-		fmt.Printf("Not implemented %s!\n", node.Operator)
+		fmt.Printf("Not implemented operator %s!\n", node.Operator)
 		return &object.Null{}
 	case *ast.InfixExpression:
 		left := Eval(node.Left)
@@ -82,6 +82,26 @@ func Eval(node ast.Node) object.Object {
 				result.Value = left.Value - right.Value
 			case token.SLASH:
 				result.Value = left.Value / right.Value
+			case token.GT:
+				if left.Value > right.Value {
+					return TRUE
+				}
+				return FALSE
+			case token.LT:
+				if left.Value < right.Value {
+					return TRUE
+				}
+				return FALSE
+			case token.EQ:
+				if left.Value == right.Value {
+					return TRUE
+				}
+				return FALSE
+			case token.NE:
+				if left.Value != right.Value {
+					return TRUE
+				}
+				return FALSE
 			}
 			return result
 		}
@@ -89,6 +109,6 @@ func Eval(node ast.Node) object.Object {
 		fmt.Printf("Sum between %s and %s not implemented!\n", left.Type(), right.Type())
 		return &object.Null{}
 	}
-	fmt.Printf("Not implemented %T!\n", node)
+	fmt.Printf("Not implemented eval for %T!\n", node)
 	return &object.Null{}
 }

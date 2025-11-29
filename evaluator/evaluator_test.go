@@ -21,6 +21,8 @@ func TestEvalInteger(t *testing.T) {
 		{"10 / 2", 5},
 		{"2 * 3", 6},
 		{"2 - 1", 1},
+		{"(2 + 5) * 2", 14},
+		{"(2 * 2) * 2", 8},
 	}
 
 	for _, tt := range tests {
@@ -40,6 +42,12 @@ func TestEvalBoolean(t *testing.T) {
 		{"!false", true},
 		{"!0", true},
 		{"!5", false},
+		{"5 > 5", false},
+		{"5 == 5", true},
+		{"5 < 5", false},
+		{"2 < 3", true},
+		{"3 > 2", true},
+		{"1 != 0", true},
 	}
 
 	for _, tt := range tests {
