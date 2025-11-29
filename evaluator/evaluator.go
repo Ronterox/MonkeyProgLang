@@ -26,20 +26,21 @@ func Eval(node ast.Node) object.Object {
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
-		return &object.Boolean{Value: node.Value}
+		if node.Value {
+			return TRUE
+		}
+		return FALSE
 	case *ast.PrefixExpression:
 		right := Eval(node.Right)
 
 		switch node.Operator {
 		case token.BANG:
-			result := &object.Boolean{}
-
 			switch right := right.(type) {
 			case *object.Integer:
-				if !(right.Value > 0) {
-					return TRUE
+				if right.Value > 0 {
+					return FALSE
 				}
-				return FALSE
+				return TRUE
 			case *object.Boolean:
 				if right == TRUE {
 					return FALSE
@@ -48,8 +49,6 @@ func Eval(node ast.Node) object.Object {
 			default:
 				return &object.Null{}
 			}
-
-			return result
 		case token.MINUS:
 			result := &object.Integer{}
 
