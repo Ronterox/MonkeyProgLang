@@ -18,3 +18,11 @@ func (e *Environment) Set(name string, val Object) Object {
 	e.store[name] = val
 	return val
 }
+
+func (e *Environment) Copy() *Environment {
+	env := NewEnvironment()
+	for k, v := range e.store {
+		env.Set(k, v)
+	}
+	return env
+}

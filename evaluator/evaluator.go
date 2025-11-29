@@ -189,6 +189,30 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return value
 		}
 		return newError("identifier not found: %s", node.Value)
+	case *ast.FunctionLiteral:
+		return &object.Function{Parameters: node.Parameters, Body: node.Body, Env: env}
+	case *ast.CallExpression:
+		caller := Eval(node.Function, env)
+		if isError(caller) {
+			return caller
+		}
+
+		if fn, ok := caller.(*object.Function); ok {
+			if len(node.Arguments) < len(fn.Parameters) {
+				return newError("function missing %d parameters", len(fn.Parameters)-len(node.Arguments))
+			}
+			fnEnv := env.Copy()
+			for i, p := range fn.Parameters {
+				arg := Eval(node.Arguments[i], fnEnv)
+				if isError(arg) {
+					return arg
+				}
+				fnEnv.Set(p.Value, arg)
+			}
+			return Eval(fn.Body, fnEnv)
+		}
+
+		return newError("expected FUNCTION call got %s call!", caller.Type())
 	}
 	return newError("Not implemented eval for %T!", node)
 }
