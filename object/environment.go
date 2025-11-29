@@ -7,10 +7,14 @@ func NewEnvironment() *Environment {
 
 type Environment struct {
 	store map[string]Object
+	outer *Environment
 }
 
 func (e *Environment) Get(name string) (Object, bool) {
 	obj, ok := e.store[name]
+	if !ok && e.outer != nil {
+		obj, ok = e.outer.store[name]
+	}
 	return obj, ok
 }
 
@@ -19,10 +23,8 @@ func (e *Environment) Set(name string, val Object) Object {
 	return val
 }
 
-func (e *Environment) Copy() *Environment {
+func (e *Environment) SmartCopy() *Environment {
 	env := NewEnvironment()
-	for k, v := range e.store {
-		env.Set(k, v)
-	}
+	env.outer = e
 	return env
 }
