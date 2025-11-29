@@ -265,6 +265,35 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return newError("expected FUNCTION call got %s call!", caller.Type())
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
+	case *ast.ArrayLiteral:
+		elems := []object.Object{}
+		for _, e := range node.Elements {
+			val := Eval(e, env)
+			if isError(val) {
+				return val
+			}
+
+			elems = append(elems, val)
+		}
+		return &object.Array{Elements: elems}
+	case *ast.IndexExpression:
+		left := Eval(node.Left, env)
+		if isError(left) {
+			return left
+		}
+
+		if arr, ok := left.(*object.Array); ok {
+			right := Eval(node.Index, env)
+			if isError(right) {
+				return right
+			}
+			if index, ok := right.(*object.Integer); ok {
+				return arr.Elements[index.Value]
+			}
+			return newError("indexing for %s is not yet supported", right.Type())
+		}
+
+		return newError("indexing not supported for %s yet", left.Type())
 	}
 	return newError("Not implemented eval for %T!", node)
 }
