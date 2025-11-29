@@ -53,6 +53,30 @@ func Eval(node ast.Node) object.Object {
 
 		fmt.Printf("Not implemented %s!\n", node.Operator)
 		return &object.Null{}
+	case *ast.InfixExpression:
+		left := Eval(node.Left)
+		right := Eval(node.Right)
+
+		if left.Type() == object.INTEGER && right.Type() == object.INTEGER {
+			left := left.(*object.Integer)
+			right := right.(*object.Integer)
+			result := &object.Integer{}
+
+			switch node.Operator {
+			case token.PLUS:
+				result.Value = left.Value + right.Value
+			case token.ASTERISK:
+				result.Value = left.Value * right.Value
+			case token.MINUS:
+				result.Value = left.Value - right.Value
+			case token.SLASH:
+				result.Value = left.Value / right.Value
+			}
+			return result
+		}
+
+		fmt.Printf("Sum between %s and %s not implemented!\n", left.Type(), right.Type())
+		return &object.Null{}
 	}
 	fmt.Printf("Not implemented %T!\n", node)
 	return &object.Null{}
