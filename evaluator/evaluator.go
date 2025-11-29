@@ -24,12 +24,12 @@ func isError(obj object.Object) bool {
 	return false
 }
 
-func Eval(node ast.Node) object.Object {
+func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		var result object.Object
 		for _, stmt := range node.Statements {
-			result = Eval(stmt)
+			result = Eval(stmt, env)
 			switch result := result.(type) {
 			case *object.Return:
 				return result.Value
@@ -41,7 +41,7 @@ func Eval(node ast.Node) object.Object {
 	case *ast.BlockStatement:
 		var result object.Object
 		for _, stmt := range node.Statements {
-			result = Eval(stmt)
+			result = Eval(stmt, env)
 			switch result.(type) {
 			case *object.Return, *object.Error:
 				return result
@@ -49,7 +49,7 @@ func Eval(node ast.Node) object.Object {
 		}
 		return result
 	case *ast.ExpressionStatement:
-		return Eval(node.Expression)
+		return Eval(node.Expression, env)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
@@ -58,7 +58,7 @@ func Eval(node ast.Node) object.Object {
 		}
 		return FALSE
 	case *ast.PrefixExpression:
-		right := Eval(node.Right)
+		right := Eval(node.Right, env)
 		if isError(right) {
 			return right
 		}
@@ -90,12 +90,12 @@ func Eval(node ast.Node) object.Object {
 		fmt.Printf("Not implemented operator %s!\n", node.Operator)
 		return NULL
 	case *ast.InfixExpression:
-		left := Eval(node.Left)
+		left := Eval(node.Left, env)
 		if isError(left) {
 			return left
 		}
 
-		right := Eval(node.Right)
+		right := Eval(node.Right, env)
 		if isError(right) {
 			return right
 		}
@@ -153,7 +153,7 @@ func Eval(node ast.Node) object.Object {
 		}
 		return newError("Operation %s between %s and %s not implemented!", node.Operator, left.Type(), right.Type())
 	case *ast.IfExpression:
-		cond := Eval(node.Condition)
+		cond := Eval(node.Condition, env)
 		if isError(cond) {
 			return cond
 		}
@@ -161,23 +161,34 @@ func Eval(node ast.Node) object.Object {
 		switch cond := cond.(type) {
 		case *object.Boolean:
 			if cond == TRUE {
-				return Eval(node.Consequence)
+				return Eval(node.Consequence, env)
 			} else if node.Alternative != nil {
-				return Eval(node.Alternative)
+				return Eval(node.Alternative, env)
 			}
 		case *object.Integer:
 			if cond.Value > 0 {
-				return Eval(node.Consequence)
+				return Eval(node.Consequence, env)
 			}
-			return Eval(node.Alternative)
+			return Eval(node.Alternative, env)
 		}
 		return NULL
 	case *ast.ReturnStatement:
-		ret := Eval(node.RetValue)
+		ret := Eval(node.RetValue, env)
 		if isError(ret) {
 			return ret
 		}
 		return &object.Return{Value: ret}
+	case *ast.LetStatement:
+		value := Eval(node.Value, env)
+		if isError(value) {
+			return value
+		}
+		return env.Set(node.Name.Value, value)
+	case *ast.Identifier:
+		if value, ok := env.Get(node.Value); ok {
+			return value
+		}
+		return newError("identifier not found: %s", node.Value)
 	}
 	return newError("Not implemented eval for %T!", node)
 }
