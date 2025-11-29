@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"monkey/evaluator"
 	"monkey/lexer"
 	"monkey/parser"
 	"monkey/token"
@@ -33,9 +34,12 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
+		result := evaluator.Eval(program)
+
 		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
 			fmt.Printf("%+v\n", tok)
 		}
 		fmt.Println(program.String())
+		fmt.Println(result.Inspect())
 	}
 }
