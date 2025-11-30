@@ -282,12 +282,17 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return left
 		}
 
+		// NOTE: Should probably start wrapping stuff on functions
 		if arr, ok := left.(*object.Array); ok {
 			right := Eval(node.Index, env)
 			if isError(right) {
 				return right
 			}
 			if index, ok := right.(*object.Integer); ok {
+				idx := index.Value
+				if idx < 0 || idx >= int64(len(arr.Elements)) {
+					return NULL
+				}
 				return arr.Elements[index.Value]
 			}
 			return newError("indexing for %s is not yet supported", right.Type())

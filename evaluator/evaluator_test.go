@@ -25,17 +25,25 @@ func TestArrayLiterals(t *testing.T) {
 func TestArrayIndexing(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected int64
+		expected any
 	}{
 		{"[1, 2 * 2, 3 + 3][0]", 1},
 		{"[1, 2 * 2, 3 + 3][1]", 4},
 		{"[1, 2 * 2, 3 + 3][2]", 6},
 		{"let arr = [1, 2 * 2, 3 + 3]; arr[2];", 6},
+		{"let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];", 6},
+		{"let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]", 2},
+		{"[1, 2, 3][3]", nil},
+		{"[1, 2, 3][-1]", nil},
 	}
 
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
-		testInteger(t, evaluated, tt.expected)
+		if expected, ok := tt.expected.(int); ok {
+			testInteger(t, evaluated, int64(expected))
+		} else {
+			testNull(t, evaluated)
+		}
 	}
 }
 
