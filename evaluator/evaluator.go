@@ -196,6 +196,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		return env.Set(node.Name.Value, value)
 	case *ast.Identifier:
+		if value, ok := env.Get(node.Value); ok {
+			return value
+		}
 		switch node.Value {
 		case "null":
 			return NULL
@@ -214,9 +217,67 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 					return newError("argument to `len` not supported, got %s", args[0].Type())
 				},
 			}
-		default:
-			if value, ok := env.Get(node.Value); ok {
-				return value
+		case "first":
+			return &object.Builtin{
+				Fn: func(args ...object.Object) object.Object {
+					if len(args) != 1 {
+						return newError("wrong number of arguments. got=%d, want=1", len(args))
+					}
+					switch arr := args[0].(type) {
+					case *object.Array:
+						if len(arr.Elements) == 0 {
+							return NULL
+						}
+						return arr.Elements[0]
+					}
+					return newError("first is not implemented for %s", args[0].Type())
+				},
+			}
+		case "last":
+			return &object.Builtin{
+				Fn: func(args ...object.Object) object.Object {
+					if len(args) != 1 {
+						return newError("wrong number of arguments. got=%d, want=1", len(args))
+					}
+					switch arr := args[0].(type) {
+					case *object.Array:
+						if length := len(arr.Elements); length > 0 {
+							return arr.Elements[length-1]
+						}
+						return NULL
+					}
+					return newError("last is not implemented for %s", args[0].Type())
+				},
+			}
+		case "rest":
+			return &object.Builtin{
+				Fn: func(args ...object.Object) object.Object {
+					if len(args) != 1 {
+						return newError("wrong number of arguments. got=%d, want=1", len(args))
+					}
+					switch arr := args[0].(type) {
+					case *object.Array:
+						newArr := &object.Array{}
+						if length := len(arr.Elements); length != 0 {
+							newArr.Elements = arr.Elements[1:length]
+						}
+						return newArr
+					}
+					return newError("rest is not implemented for %s", args[0].Type())
+				},
+			}
+		case "push":
+			return &object.Builtin{
+				Fn: func(args ...object.Object) object.Object {
+					if len(args) != 2 {
+						return newError("wrong number of arguments. got=%d, want=2", len(args))
+					}
+					switch arr := args[0].(type) {
+					case *object.Array:
+						return &object.Array{Elements: append(arr.Elements, args[1])}
+					}
+					return newError("rest is not implemented for %s", args[0].Type())
+				},
 			}
 		}
 		return newError("identifier not found: %s", node.Value)
@@ -272,7 +333,6 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			if isError(val) {
 				return val
 			}
-
 			elems = append(elems, val)
 		}
 		return &object.Array{Elements: elems}
@@ -293,7 +353,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 				if idx < 0 || idx >= int64(len(arr.Elements)) {
 					return NULL
 				}
-				return arr.Elements[index.Value]
+				return arr.Elements[idx]
 			}
 			return newError("indexing for %s is not yet supported", right.Type())
 		}

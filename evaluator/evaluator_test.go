@@ -57,6 +57,26 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`len("hello world")`, 11},
 		{`len(1)`, "argument to `len` not supported, got INTEGER"},
 		{`len("one", "two")`, "wrong number of arguments. got=2, want=1"},
+		{`first([1, 2])`, 1},
+		{`last([1, 2])`, 2},
+		{`first([])`, nil},
+		{`last([])`, nil},
+		{`first(rest([1, 2]))`, 2},
+		{`first(rest([2]))`, nil},
+		{`
+			let arr = [1, 2, 3];
+			rest(rest(arr))
+			first(arr)
+			`,
+			1,
+		},
+		{`
+			let arr = [1, 2, 3];
+			push(arr, 1)
+			last(push(arr, 2))
+			`,
+			2,
+		},
 	}
 
 	for _, tt := range tests {
@@ -73,6 +93,8 @@ func TestBuiltinFunctions(t *testing.T) {
 			if errObj.Message != expected {
 				t.Errorf("wrong error message. expected=%q, got=%q", expected, errObj.Message)
 			}
+		default:
+			testNull(t, evaluated)
 		}
 	}
 }
