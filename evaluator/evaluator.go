@@ -311,7 +311,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			// TODO: Understand this fucking recursion
 			fnEnv := fn.Env.SmartCopy()
 			for i, p := range fn.Parameters {
-				arg := Eval(node.Arguments[i], fnEnv)
+				arg := Eval(node.Arguments[i], env)
 				if isError(arg) {
 					return arg
 				}
