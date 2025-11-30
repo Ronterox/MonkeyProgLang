@@ -1,7 +1,7 @@
 let map = fn(arr, f) {
 	let iter = fn(arr, accumulated) {
 		if (len(arr) == 0) {
-			accumulated
+			return accumulated
 		} else {
 			iter(rest(arr), push(accumulated, f(first(arr))))
 		}
