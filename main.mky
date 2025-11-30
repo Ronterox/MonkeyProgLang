@@ -1,13 +1,24 @@
 let map = fn(arr, f) {
-	let iter = fn(arr, accumulated) {
+	let iter = fn(arr, acc) {
 		if (len(arr) == 0) {
-			return accumulated
-		} else {
-			iter(rest(arr), push(accumulated, f(first(arr))))
+			return acc
 		}
+		iter(rest(arr), push(acc, f(first(arr))))
 	}
 	iter(arr, [])
 }
 
+let reduce = fn(arr, acc, f) {
+	let iter = fn(arr, acc) {
+		if (len(arr) == 0) {
+			return acc
+		}
+		iter(rest(arr), f(first(arr), acc))
+	}
+	iter(arr, acc)
+}
+
+let sum = fn(arr) { reduce(arr, 0, fn(n, acc) { n + acc }) };
+
 let a = [1, 2, 3, 4];
-map(a, fn(x) { x * 100 })
+sum(map(a, fn(x) { x * 100 }));
