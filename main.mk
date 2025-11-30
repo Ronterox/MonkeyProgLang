@@ -1,9 +1,13 @@
-let loop = fn(len, i, inc, iter) {
-	if (i > len - 1) {
-		return i
+let map = fn(arr, f) {
+	let iter = fn(arr, accumulated) {
+		if (len(arr) == 0) {
+			accumulated
+		} else {
+			iter(rest(arr), push(accumulated, f(first(arr)))
+		}
 	}
-	iter(i)
-	return loop(len, i+inc, inc)
+	iter(arr, [])
 }
 
-loop(0, 10, 1, fn() { 10 })
+let a = [1, 2, 3, 4];
+map(a, fn(x) { x * 100 })
