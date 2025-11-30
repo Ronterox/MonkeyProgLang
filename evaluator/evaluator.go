@@ -213,6 +213,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 					case *object.String:
 						// NOTE: Maybe I don't need 64 as basis bruh
 						return &object.Integer{Value: int64(len(obj.Value))}
+					case *object.Array:
+						return &object.Integer{Value: int64(len(obj.Elements))}
 					}
 					return newError("argument to `len` not supported, got %s", args[0].Type())
 				},
