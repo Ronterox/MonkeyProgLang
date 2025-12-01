@@ -1,0 +1,47 @@
+let lists = fn(x, y) {
+	reduce(list({ "from": 0, "to": 10 }), `[`, fn(i, acc) {
+		acc + `{ $x$i:$y$i }`
+	}) + `]`
+}
+
+// Use your own macro to create extended macros
+let func = macro(name, lp, arg, type, rp, lb, body, rb) {{
+	"name" : "IDENT",
+	"lp"   : "(",
+	"arg"  : "IDENT",
+	"type" : "IDENT",
+	"rp"   : ")",
+	"lb"   : "{",
+	"body" : "ANYTHING",
+	"rb"   : "}",
+	true   : fn(name, arg, body) {
+				`
+				 def $name($arg:$type):
+					assert isinstance($arg, $type), "$arg must be instance of $type"
+					$body
+					pass
+				`
+			}
+}}
+
+let trap = macro(val, c, err, e, rest, n) {{
+	"val"  : "IDENT",
+	"c"    : ",",
+	"err"  : "IDENT",
+	"e"    : ":=",
+	"rest" : "ANYTHING",
+	"n"    : "\n",
+	true   : `
+		$val, $err := $rest
+		if err != nil {
+			fmt.Println($err)
+			return
+		}
+	`
+}}
+
+func readFile(file string) {
+	trap file, err := os.Open(file)
+	defer file.close()
+	fmt.Println(file)
+}

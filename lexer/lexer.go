@@ -4,6 +4,7 @@ import (
 	"monkey/token"
 )
 
+// TODO: I should probably introduce line errors at least or column
 type Lexer struct {
 	input        string
 	position     int

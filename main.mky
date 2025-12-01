@@ -1,3 +1,5 @@
+//eval(read("grammar.mky"))
+
 let map = fn(arr, f) {
 	let iter = fn(arr, acc) {
 		if (len(arr) == 0) {
@@ -22,3 +24,8 @@ let sum = fn(arr) { reduce(arr, 0, fn(n, acc) { n + acc }) };
 
 let a = [1, 2, 3, 4];
 sum(map(a, fn(x) { x * 100 }));
+
+"
+hi there is multiple lines
+on this string
+"
