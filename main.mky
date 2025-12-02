@@ -1,4 +1,4 @@
-//eval(read("grammar.mky"))
+// eval(read("grammar.mky"))
 
 let map = fn(arr, f) {
 	let iter = fn(arr, acc) {
