@@ -282,6 +282,19 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 					return newError("rest is not implemented for %s", args[0].Type())
 				},
 			}
+		case "string":
+			return &object.Builtin{
+				Fn: func(args ...object.Object) object.Object {
+					var out bytes.Buffer
+
+					for _, arg := range args {
+						out.WriteString(arg.Inspect())
+						out.WriteString(" ")
+					}
+
+					return &object.String{Value: out.String()}
+				},
+			}
 		case "echo":
 			return &object.Builtin{
 				Fn: func(args ...object.Object) object.Object {
@@ -293,7 +306,6 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 					}
 
 					fmt.Println(out.String())
-
 					return NULL
 				},
 			}

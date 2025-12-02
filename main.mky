@@ -20,12 +20,24 @@ let reduce = fn(arr, acc, f) {
 	iter(arr, acc)
 }
 
-let sum = fn(arr) { reduce(arr, 0, fn(n, acc) { n + acc }) };
+let sum = fn(arr) { reduce(arr, 0, fn(n, acc) { n + acc }) }
 
-let a = [1, 2, 3, 4];
-sum(map(a, fn(x) { x * 100 }));
+sum(map([1, 2, 3, 4], fn(x) { x * 100 }))
 
-let people = [{ "name": "Alice", "age": 24}, { "name": "Luis Monte", "age": 50}]
-people[0]["name"]
+let say = "sayfunction"
+let person = fn(name, age) {{
+	"name":name,
+	"age":age,
+	say: fn(n, a) { "Hi my name is " + n + " and I'm " + string(a) }
+}}
 
-echo("hi", "mom", 10, 15, people)
+let people = [person("Alice", 25), person("Luis Monte", 50)]
+
+// let call = fn(p, method, ...args) {
+// 	x[method](...args)
+// }
+
+let call = fn(p, m, a1, a2) { p[m](a1, a2) }
+
+map(people, fn(x) { echo(call(x, say)) })
+
