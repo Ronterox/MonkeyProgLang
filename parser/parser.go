@@ -66,6 +66,7 @@ func New(lexer *lexer.Lexer) *Parser {
 	p.prefixParseFns[token.FUNCTION] = p.parseFunctionExpression
 	p.prefixParseFns[token.STRING] = p.parseString
 	p.prefixParseFns[token.LBRACKET] = p.parseArrayLiteral
+	p.prefixParseFns[token.LBRACE] = p.parseHashLiteral
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.infixParseFns[token.PLUS] = p.parseInfixExpression
@@ -172,6 +173,39 @@ func (p *Parser) parseIfElseExpression() ast.Expression {
 		}
 
 		exp.Alternative = p.ParseBlockStatement()
+	}
+
+	return exp
+}
+
+func (p *Parser) parseHashLiteral() ast.Expression {
+	exp := &ast.HashLiteral{Token: p.currToken, Pairs: map[ast.Expression]ast.Expression{}}
+	p.nextToken()
+
+	if !p.currTokenIs(token.RBRACE) {
+		key := p.parseExpression(LOWEST)
+		if !p.expectPeek(token.COLON) {
+			return nil
+		}
+		p.nextToken()
+		value := p.parseExpression(LOWEST)
+		exp.Pairs[key] = value
+
+		for p.peekTokenIs(token.COMMA) {
+			p.nextToken()
+			p.nextToken()
+			key = p.parseExpression(LOWEST)
+			if !p.expectPeek(token.COLON) {
+				return nil
+			}
+			p.nextToken()
+			value = p.parseExpression(LOWEST)
+			exp.Pairs[key] = value
+		}
+
+		if !p.expectPeek(token.RBRACE) {
+			return nil
+		}
 	}
 
 	return exp
