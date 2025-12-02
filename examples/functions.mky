@@ -5,13 +5,6 @@ let for = fn(from, to, f) {
 	return for(from + 1, to, f)
 }
 
-let for = fn(from, to, f) {
-	let val = f(from)
-	// TODO: I need greater eq
-	if (from > to) { return val; }
-	return for(from + 1, to, f)
-}
-
 let map = fn(arr, f) {
 	let iter = fn(arr, acc) {
 		// TODO: I would like to remove the parenthesis from the if
