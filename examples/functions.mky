@@ -27,8 +27,3 @@ let reduce = fn(arr, acc, f) {
 	}
 	iter(arr, acc)
 }
-
-let sum = fn(arr) { reduce(arr, 0, fn(n, acc) { n + acc }) }
-let call = fn(cls, method) { cls[method](cls) }
-let apply = fn(cls, method) { map(cls, fn(x) { call(x, method) }) }
-

@@ -1,0 +1,5 @@
+
+let sum = fn(arr) { reduce(arr, 0, fn(n, acc) { n + acc }) }
+
+for(0, 10, echo);
+sum([1, 2, 3, 4, 5])
