@@ -110,10 +110,7 @@ func (l *Lexer) NextToken() token.Token {
 
 func (l *Lexer) readIdentifier() string {
 	position := l.position
-	if l.ch == '"' {
-		l.readChar()
-	}
-	for isLetter(l.ch) {
+	for isLetter(l.ch) || isNumber(l.ch) {
 		l.readChar()
 	}
 	return l.input[position:l.position]

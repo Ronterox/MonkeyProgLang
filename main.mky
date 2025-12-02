@@ -37,7 +37,7 @@ let people = [person("Alice", 25), person("Luis Monte", 50)]
 // 	x[method](...args)
 // }
 
-let call = fn(p, m, a1, a2) { p[m](a1, a2) }
+let call2 = fn(p, m, a, aa) { p[m](p[a], p[aa]) }
 
-map(people, fn(x) { echo(call(x, say)) })
+map(people, fn(x) { call2(x, say, "name", "age") })
 
