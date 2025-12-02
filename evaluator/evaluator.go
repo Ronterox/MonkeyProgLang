@@ -3,8 +3,11 @@ package evaluator
 import (
 	"fmt"
 	"monkey/ast"
+	"monkey/lexer"
 	"monkey/object"
+	"monkey/parser"
 	"monkey/token"
+	"os"
 	"strings"
 )
 
@@ -261,7 +264,7 @@ func buildPrefix(node *ast.PrefixExpression, env *object.Environment) object.Obj
 	return NULL
 }
 
-func buildBuiltin(node *ast.Identifier) object.Object {
+func buildBuiltin(node *ast.Identifier, env *object.Environment) object.Object {
 	switch node.Value {
 	case "null":
 		return NULL
@@ -364,6 +367,39 @@ func buildBuiltin(node *ast.Identifier) object.Object {
 				return NULL
 			},
 		}
+	case "read":
+		return &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments. got=%d, want=1", len(args))
+				}
+
+				switch file := args[0].(type) {
+				case *object.String:
+					content, err := os.ReadFile(file.Value)
+					if err != nil {
+						return newError("could not read file %s", file.Value)
+					}
+					return &object.String{Value: string(content)}
+				}
+				return newError("argument to `read` not supported yet, got %s", args[0].Type())
+			},
+		}
+	case "eval":
+		return &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments. got=%d, want=1", len(args))
+				}
+
+				if text, ok := args[0].(*object.String); ok {
+					lexer := lexer.New(text.Value)
+					parser := parser.New(lexer)
+					return Eval(parser.ParseProgram(), env)
+				}
+				return newError("argument to `eval` not supported yet, got %s", args[0].Type())
+			},
+		}
 	}
 	return nil
 }
@@ -434,7 +470,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if value, ok := env.Get(node.Value); ok {
 			return value
 		}
-		if obj := buildBuiltin(node); obj != nil {
+		if obj := buildBuiltin(node, env); obj != nil {
 			return obj
 		}
 		return newError("identifier not found: %s", node.Value)

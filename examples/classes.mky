@@ -1,7 +1,7 @@
-eval(read("grammar.mky"))
+eval(read("examples/functions.mky"))
 
 let say = "sayfunc"; let bye = "byefunc";
-let newPerson = fn(name, age) {{
+let Person = fn(name, age) {{
 	"name": name,
 	"age": age,
 	say: fn(me) { "Hi my name is " + me["name"] + " and I'm " + string(me["age"]) },
@@ -9,10 +9,9 @@ let newPerson = fn(name, age) {{
 }}
 
 let people = [
-	newPerson("Alice", 25),
-	newPerson("Luis Monte", 50)
+	Person("Alice", 25),
+	Person("Luis Monte", 50) // TODO: Lol json trailing comma
 ];
 
-for(0, 10, echo)
-apply(people, say)
-
+for(0, 10, echo);
+apply(people, say);
