@@ -24,20 +24,19 @@ let sum = fn(arr) { reduce(arr, 0, fn(n, acc) { n + acc }) }
 
 sum(map([1, 2, 3, 4], fn(x) { x * 100 }))
 
-let say = "sayfunction"
+let say = "sayfunc"
+let bye = "byefunc"
 let person = fn(name, age) {{
 	"name":name,
 	"age":age,
-	say: fn(n, a) { "Hi my name is " + n + " and I'm " + string(a) }
+	say: fn(me) { "Hi my name is " + me["name"] + " and I'm " + string(me["age"]) },
+	bye: fn(me) { "Bye from " + me["name"] }
 }}
 
 let people = [person("Alice", 25), person("Luis Monte", 50)]
 
-// let call = fn(p, method, ...args) {
-// 	x[method](...args)
-// }
+let call = fn(p, m) { p[m](p) }
 
-let call2 = fn(p, m, a, aa) { p[m](p[a], p[aa]) }
-
-map(people, fn(x) { call2(x, say, "name", "age") })
+map(people, fn(x) { echo(call(x, say)) })
+map(people, fn(x) { echo(call(x, bye)) })
 

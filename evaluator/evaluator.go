@@ -1,11 +1,11 @@
 package evaluator
 
 import (
-	"bytes"
 	"fmt"
 	"monkey/ast"
 	"monkey/object"
 	"monkey/token"
+	"strings"
 )
 
 var (
@@ -285,27 +285,21 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		case "string":
 			return &object.Builtin{
 				Fn: func(args ...object.Object) object.Object {
-					var out bytes.Buffer
-
+					all := []string{}
 					for _, arg := range args {
-						out.WriteString(arg.Inspect())
-						out.WriteString(" ")
+						all = append(all, arg.Inspect())
 					}
-
-					return &object.String{Value: out.String()}
+					return &object.String{Value: strings.Join(all, "")}
 				},
 			}
 		case "echo":
 			return &object.Builtin{
 				Fn: func(args ...object.Object) object.Object {
-					var out bytes.Buffer
-
+					all := []string{}
 					for _, arg := range args {
-						out.WriteString(arg.Inspect())
-						out.WriteString(" ")
+						all = append(all, arg.Inspect())
 					}
-
-					fmt.Println(out.String())
+					fmt.Println(strings.Join(all, ""))
 					return NULL
 				},
 			}
