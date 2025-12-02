@@ -45,6 +45,6 @@ let people = [
 	newPerson("Luis Monte", 50)
 ];
 
-for(0, 10, fn(i) { echo(i) })
+for(0, 10, echo)
 apply(people, say)
 
