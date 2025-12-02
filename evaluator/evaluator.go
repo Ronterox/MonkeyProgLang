@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"bytes"
 	"fmt"
 	"monkey/ast"
 	"monkey/object"
@@ -279,6 +280,21 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 						return &object.Array{Elements: append(arr.Elements, args[1])}
 					}
 					return newError("rest is not implemented for %s", args[0].Type())
+				},
+			}
+		case "echo":
+			return &object.Builtin{
+				Fn: func(args ...object.Object) object.Object {
+					var out bytes.Buffer
+
+					for _, arg := range args {
+						out.WriteString(arg.Inspect())
+						out.WriteString(" ")
+					}
+
+					fmt.Println(out.String())
+
+					return NULL
 				},
 			}
 		}
