@@ -136,9 +136,20 @@ func (l *Lexer) readNumber() string {
 	return l.input[position:l.position]
 }
 
+func (l *Lexer) skipComments() {
+	// Handle comments lol
+	if l.ch == '/' && l.peekChar() == '/' {
+		for l.ch != '\n' && l.ch != 0 {
+			l.readChar()
+		}
+	}
+}
+
 func (l *Lexer) skipWhitespace() {
+	l.skipComments()
 	for l.ch == ' ' || l.ch == '\n' || l.ch == '\t' || l.ch == '\r' {
 		l.readChar()
+		l.skipComments()
 	}
 }
 
