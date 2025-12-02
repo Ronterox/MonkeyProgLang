@@ -1,15 +1,13 @@
-// eval(read("grammar.mky"))
-
 let for = fn(from, to, f) {
 	let val = f(from)
-	// I need greater eq
+	// TODO: I need greater eq
 	if (from > to) { return val; }
 	return for(from + 1, to, f)
 }
 
 let map = fn(arr, f) {
 	let iter = fn(arr, acc) {
-		// I would like to remove the parenthesis from the if
+		// TODO: I would like to remove the parenthesis from the if
 		if (len(arr) == 0) {
 			return acc
 		}
@@ -31,20 +29,4 @@ let reduce = fn(arr, acc, f) {
 let sum = fn(arr) { reduce(arr, 0, fn(n, acc) { n + acc }) }
 let call = fn(cls, method) { cls[method](cls) }
 let apply = fn(cls, method) { map(cls, fn(x) { call(x, method) }) }
-
-let say = "sayfunc"; let bye = "byefunc";
-let newPerson = fn(name, age) {{
-	"name": name,
-	"age": age,
-	say: fn(me) { "Hi my name is " + me["name"] + " and I'm " + string(me["age"]) },
-	bye: fn(me) { "Bye from " + me["name"] },
-}}
-
-let people = [
-	newPerson("Alice", 25),
-	newPerson("Luis Monte", 50)
-];
-
-for(0, 10, echo)
-apply(people, say)
 
