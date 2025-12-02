@@ -180,32 +180,26 @@ func (p *Parser) parseIfElseExpression() ast.Expression {
 
 func (p *Parser) parseHashLiteral() ast.Expression {
 	exp := &ast.HashLiteral{Token: p.currToken, Pairs: map[ast.Expression]ast.Expression{}}
-	p.nextToken()
 
-	if !p.currTokenIs(token.RBRACE) {
+	for !p.peekTokenIs(token.RBRACE) {
+		p.nextToken()
+
 		key := p.parseExpression(LOWEST)
 		if !p.expectPeek(token.COLON) {
 			return nil
 		}
 		p.nextToken()
+
 		value := p.parseExpression(LOWEST)
 		exp.Pairs[key] = value
 
-		for p.peekTokenIs(token.COMMA) {
-			p.nextToken()
-			p.nextToken()
-			key = p.parseExpression(LOWEST)
-			if !p.expectPeek(token.COLON) {
-				return nil
-			}
-			p.nextToken()
-			value = p.parseExpression(LOWEST)
-			exp.Pairs[key] = value
-		}
-
-		if !p.expectPeek(token.RBRACE) {
+		if !p.peekTokenIs(token.RBRACE) && !p.expectPeek(token.COMMA) {
 			return nil
 		}
+	}
+
+	if !p.expectPeek(token.RBRACE) {
+		return nil
 	}
 
 	return exp
