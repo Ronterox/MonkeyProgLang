@@ -25,7 +25,5 @@ let sum = fn(arr) { reduce(arr, 0, fn(n, acc) { n + acc }) };
 let a = [1, 2, 3, 4];
 sum(map(a, fn(x) { x * 100 }));
 
-"
-hi there is multiple lines
-on this string
-"
+let people = [{ "name": "Alice", "age": 24}, { "name": "Luis Monte", "age": 50}]
+people[0]["name"]

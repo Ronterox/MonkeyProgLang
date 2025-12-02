@@ -357,10 +357,43 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 				}
 				return arr.Elements[idx]
 			}
-			return newError("indexing for %s is not yet supported", right.Type())
+			return newError("indexing by %s is not yet supported", right.Type())
+		} else if hash, ok := left.(*object.Hash); ok {
+			right := Eval(node.Index, env)
+			if isError(right) {
+				return right
+			}
+			if index, ok := right.(object.Hashable); ok {
+				if val, ok := hash.Pairs[index.HashKey()]; ok {
+					return val.Value
+				}
+				return NULL
+			}
+			return newError("indexing by %s is not yet supported", right.Type())
 		}
 
 		return newError("indexing not supported for %s yet", left.Type())
+	case *ast.HashLiteral:
+		pairs := map[object.HashKey]object.HashPair{}
+		for k, v := range node.Pairs {
+			key := Eval(k, env)
+			if isError(key) {
+				return key
+			}
+
+			hashKey, ok := key.(object.Hashable)
+			if !ok {
+				return newError("%T=(%v) not yet implemented as hash key!", key, key)
+			}
+
+			val := Eval(v, env)
+			if isError(val) {
+				return val
+			}
+
+			pairs[hashKey.HashKey()] = object.HashPair{Key: key, Value: val}
+		}
+		return &object.Hash{Pairs: pairs}
 	}
 	return newError("Not implemented eval for %T!", node)
 }
