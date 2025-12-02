@@ -1,7 +1,15 @@
 // eval(read("grammar.mky"))
 
+let for = fn(from, to, f) {
+	let val = f(from)
+	// I need greater eq
+	if (from > to) { return val; }
+	return for(from + 1, to, f)
+}
+
 let map = fn(arr, f) {
 	let iter = fn(arr, acc) {
+		// I would like to remove the parenthesis from the if
 		if (len(arr) == 0) {
 			return acc
 		}
@@ -21,22 +29,22 @@ let reduce = fn(arr, acc, f) {
 }
 
 let sum = fn(arr) { reduce(arr, 0, fn(n, acc) { n + acc }) }
+let call = fn(cls, method) { cls[method](cls) }
+let apply = fn(cls, method) { map(cls, fn(x) { call(x, method) }) }
 
-sum(map([1, 2, 3, 4], fn(x) { x * 100 }))
-
-let say = "sayfunc"
-let bye = "byefunc"
-let person = fn(name, age) {{
-	"name":name,
-	"age":age,
+let say = "sayfunc"; let bye = "byefunc";
+let newPerson = fn(name, age) {{
+	"name": name,
+	"age": age,
 	say: fn(me) { "Hi my name is " + me["name"] + " and I'm " + string(me["age"]) },
-	bye: fn(me) { "Bye from " + me["name"] }
+	bye: fn(me) { "Bye from " + me["name"] },
 }}
 
-let people = [person("Alice", 25), person("Luis Monte", 50)]
+let people = [
+	newPerson("Alice", 25),
+	newPerson("Luis Monte", 50)
+];
 
-let call = fn(p, m) { p[m](p) }
-
-map(people, fn(x) { echo(call(x, say)) })
-map(people, fn(x) { echo(call(x, bye)) })
+for(0, 10, fn(i) { echo(i) })
+apply(people, say)
 

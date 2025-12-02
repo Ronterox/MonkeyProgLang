@@ -7,9 +7,45 @@ import (
 	"os/user"
 )
 
+const EXT = ".mky"
+
+func runMultipleFiles(directory string) {
+	dir, err := os.ReadDir(directory)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, file := range dir {
+		name := file.Name()
+		if name[0] == '.' {
+			continue
+		}
+
+		if file.IsDir() {
+			runMultipleFiles(name)
+			continue
+		}
+
+		if len(name) > len(EXT) && name[len(name)-4:] == EXT {
+			execution.RunCode(os.Stdin, os.Stdout, directory+"/"+name)
+		}
+	}
+}
+
 func main() {
 	if len(os.Args) > 1 {
-		execution.RunCode(os.Stdin, os.Stdout, os.Args[1])
+		stat, err := os.Stat(os.Args[1])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		if stat.IsDir() {
+			runMultipleFiles(stat.Name())
+		} else {
+			execution.RunCode(os.Stdin, os.Stdout, stat.Name())
+		}
 		return
 	}
 
