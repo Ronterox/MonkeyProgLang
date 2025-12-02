@@ -13,5 +13,7 @@ let people = [
 	Person("Luis Monte", 50) // TODO: Lol json trailing comma
 ];
 
+
 for(0, 10, echo);
+foreach(people, fn(x) { echo(x["name"]) });
 apply(people, say);
