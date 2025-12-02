@@ -35,7 +35,9 @@ func runMultipleFiles(directory string) {
 
 func main() {
 	if len(os.Args) > 1 {
-		stat, err := os.Stat(os.Args[1])
+		filepath := os.Args[1]
+
+		stat, err := os.Stat(filepath)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -44,7 +46,7 @@ func main() {
 		if stat.IsDir() {
 			runMultipleFiles(stat.Name())
 		} else {
-			execution.RunCode(os.Stdin, os.Stdout, stat.Name())
+			execution.RunCode(os.Stdin, os.Stdout, filepath)
 		}
 		return
 	}
