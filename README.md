@@ -13,7 +13,7 @@ If you need something different you can build it with functions or macros.
 
 ### Grammar
 
-```mky
+```js
 // Assignment
 let name = value; // Optional semicolon
 
@@ -49,7 +49,7 @@ if condition { // Everything is true but 0, false and null. Should I add empty s
 
 Some builtins utilities:
 
-```mky
+```js
 len(arr) // Returns the length of the array
 first(arr) // Returns the first element of the array
 last(arr) // Returns the last element of the array
@@ -65,7 +65,7 @@ eval(file) // Evaluates a string as code and returns its content
 
 Here is the "unique" and truly powerful feature of Monkey Lango, macros.
 
-```mky
+```js
 let func = macro(name, lp, arg, type, rp, lb, body, rb) {
     // Macro body
 }
