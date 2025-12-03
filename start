@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -e
+
+# @cmd Builds the binary the smallest for production
+# -s and -w omits debug information
+build() {
+	go build -ldflags="-s -w" -o monkey .
+	./utilities/upx monkey
+}
+
+# See more details at https://github.com/sigoden/argc
+eval "$(start-tool extend)"
+eval "$(argc --argc-eval "$0" "$@")"
