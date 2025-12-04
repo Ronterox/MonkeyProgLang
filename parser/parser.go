@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"bytes"
 	"fmt"
 	"monkey/ast"
 	"monkey/lexer"
@@ -282,8 +283,13 @@ func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 }
 
 func (p *Parser) parseString() ast.Expression {
-	// TODO: Get all the following string literals
-	return &ast.StringLiteral{Token: p.currToken, Value: p.currToken.Literal}
+	var literal bytes.Buffer
+	literal.WriteString(p.currToken.Literal)
+	for p.peekTokenIs(token.STRING) {
+		p.nextToken()
+		literal.WriteString(p.currToken.Literal)
+	}
+	return &ast.StringLiteral{Token: p.currToken, Value: literal.String()}
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {

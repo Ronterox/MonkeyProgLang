@@ -222,11 +222,31 @@ func buildInfix(node *ast.InfixExpression, env *object.Environment) object.Objec
 		switch node.Operator {
 		case token.PLUS:
 			return &object.String{Value: left.Value + right.Value}
-			// TODO: I want to remove the pattern from the right side
-			// case token.MINUS:
-			// 	return &object.String{Value: ""}
+		case token.MINUS:
+			return &object.String{Value: strings.ReplaceAll(left.Value, right.Value, "")}
+		}
+	} else if left.Type() == object.INTEGER && right.Type() == object.STRING {
+		left := left.(*object.Integer)
+		right := right.(*object.String)
+
+		switch node.Operator {
+		case token.PLUS:
+			return &object.String{Value: fmt.Sprintf("%d%s", left.Value, right.Value)}
+		case token.ASTERISK:
+			return &object.String{Value: strings.Repeat(right.Value, int(left.Value))}
+		}
+	} else if left.Type() == object.STRING && right.Type() == object.INTEGER {
+		left := left.(*object.String)
+		right := right.(*object.Integer)
+
+		switch node.Operator {
+		case token.PLUS:
+			return &object.String{Value: fmt.Sprintf("%s%d", left.Value, right.Value)}
+		case token.ASTERISK:
+			return &object.String{Value: strings.Repeat(left.Value, int(right.Value))}
 		}
 	}
+
 	return newError("Operation %s between %s and %s not implemented!", node.Operator, left.Type(), right.Type())
 }
 
@@ -276,7 +296,6 @@ func buildBuiltin(node *ast.Identifier, env *object.Environment) object.Object {
 				}
 				switch obj := args[0].(type) {
 				case *object.String:
-					// NOTE: Maybe I don't need 64 as basis bruh
 					return &object.Integer{Value: int64(len(obj.Value))}
 				case *object.Array:
 					return &object.Integer{Value: int64(len(obj.Elements))}

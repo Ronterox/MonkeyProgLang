@@ -9,8 +9,16 @@ let upper2lower = {
 	"a": "a", "b": "b", "c": "c", "d": "d", "e": "e", "f": "f", "g": "g", "h": "h", "i": "i", "j": "j", "k": "k", "l": "l", "m": "m", "n": "n", "o": "o", "p": "p", "q": "q", "r": "r", "s": "s", "t": "t", "u": "u", "v": "v", "w": "w", "x": "x", "y": "y", "z": "z",
 };
 
-let join = fn(arr, sep) { reduce(arr, "", fn(x, acc) { acc + string(x) + sep }) };
+let join = fn(arr, sep) { reduce(arr, "", fn(x, acc) { acc + x + sep }) };
 let uppercase = fn(str) { join(map(str, fn(x) { lower2upper[x] }), "") };
 let lowercase = fn(str) { join(map(str, fn(x) { upper2lower[x] }), "") };
 
-uppercase(["f", "o", "o"]) + " " + lowercase(["F", "O", "O"])
+let FOOFOO = uppercase(["f", "o", "o"]) * 2; echo(FOOFOO)
+
+let foo = lowercase(["F", "O", "O"]); echo(foo)
+
+let FOOFOO = foo + 1 + FOOFOO + foo + 2 + FOOFOO + foo + 3; echo(FOOFOO) // TODO: Add test for this
+
+echo("This " "is" " a " " single " "string") // TODO: Add test for this
+
+FOOFOO - foo // TODO: Add test for this

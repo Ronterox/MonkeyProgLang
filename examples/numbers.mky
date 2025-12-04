@@ -1,3 +1,4 @@
+eval(read("examples/functions.mky"))
 
 let sum = fn(arr) { reduce(arr, 0, fn(n, acc) { n + acc }) }
 
