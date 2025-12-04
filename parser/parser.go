@@ -148,15 +148,15 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 func (p *Parser) parseIfElseExpression() ast.Expression {
 	exp := &ast.IfExpression{Token: p.currToken}
 
-	if !p.expectPeek(token.LPAREN) {
-		return nil
+	if p.peekTokenIs(token.LPAREN) {
+		p.nextToken()
 	}
 
 	p.nextToken()
 	exp.Condition = p.parseExpression(LOWEST)
 
-	if !p.expectPeek(token.RPAREN) {
-		return nil
+	if p.peekTokenIs(token.RPAREN) {
+		p.nextToken()
 	}
 
 	if !p.expectPeek(token.LBRACE) {
@@ -215,6 +215,11 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 
 		for p.peekTokenIs(token.COMMA) {
 			p.nextToken()
+
+			if p.peekTokenIs(token.RBRACKET) {
+				break
+			}
+
 			p.nextToken()
 			param := p.parseExpression(LOWEST)
 			exp.Elements = append(exp.Elements, param)

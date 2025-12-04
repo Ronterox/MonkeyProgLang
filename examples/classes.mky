@@ -13,7 +13,7 @@ let Person = fn(name, age) {{
 
 let people = [
 	Person("Alice", 25),
-	Person("Luis Monte", 50) // TODO: Lol json trailing comma
+	Person("Luis Monte", 50),
 ];
 
 foreach(people, fn(x) { echo(x["name"]) });
