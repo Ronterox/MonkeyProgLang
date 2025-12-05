@@ -17,8 +17,8 @@ let FOOFOO = uppercase(["f", "o", "o"]) * 2; echo(FOOFOO)
 
 let foo = lowercase(["F", "O", "O"]); echo(foo)
 
-let FOOFOO = foo + 1 + FOOFOO + foo + 2 + FOOFOO + foo + 3; echo(FOOFOO) // TODO: Add test for this
+let FOOFOO = foo + 1 + FOOFOO + foo + 2 + FOOFOO + foo + 3; echo(FOOFOO)
 
-echo("This " "is" " a " " single " "string") // TODO: Add test for this
+echo("This " "is" " a " " single " "string")
 
-FOOFOO - foo // TODO: Add test for this
+FOOFOO - foo

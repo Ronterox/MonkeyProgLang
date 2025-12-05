@@ -213,6 +213,11 @@ func TestStringLiteralExpression(t *testing.T) {
 	if !testLiteralExpression(t, stmt.Expression, `"foobar"`) {
 		return
 	}
+
+	stmt = parseSingleStatement(t, `"foo" "bar";`)
+	if !testLiteralExpression(t, stmt.Expression, `"foobar"`) {
+		return
+	}
 }
 
 func TestBooleanExpression(t *testing.T) {
@@ -301,7 +306,6 @@ func TestIfElseExpression(t *testing.T) {
 	}
 }
 
-// TODO: Add some extra tests
 func TestFunctionLiteral(t *testing.T) {
 	stmt := parseSingleStatement(t, "fn(x, y) { x + y }")
 
