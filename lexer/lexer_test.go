@@ -30,6 +30,8 @@ func TestNextToken(t *testing.T) {
 
 	[1, 2, 3];
 	{ "move":"it" }
+
+	5 >= 10 <= 5
 	`
 
 	tests := []struct {
@@ -136,6 +138,12 @@ func TestNextToken(t *testing.T) {
 		{token.COLON, ":"},
 		{token.STRING, "it"},
 		{token.RBRACE, "}"},
+
+		{token.INT, "5"},
+		{token.GE, ">="},
+		{token.INT, "10"},
+		{token.LE, "<="},
+		{token.INT, "5"},
 		{token.EOF, ""},
 	}
 

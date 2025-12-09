@@ -32,6 +32,16 @@ func (l *Lexer) peekChar() byte {
 	}
 }
 
+func (l *Lexer) preEqual(pre token.TokenType, alone token.TokenType) token.Token {
+	if l.peekChar() == '=' {
+		ch := l.ch
+		l.readChar()
+		return token.Token{Type: pre, Literal: string(ch) + string(l.ch)}
+	} else {
+		return newToken(alone, l.ch)
+	}
+}
+
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
@@ -39,21 +49,13 @@ func (l *Lexer) NextToken() token.Token {
 
 	switch l.ch {
 	case '=':
-		if l.peekChar() == '=' {
-			ch := l.ch
-			l.readChar()
-			tok = token.Token{Type: token.EQ, Literal: string(ch) + string(l.ch)}
-		} else {
-			tok = newToken(token.ASSIGN, l.ch)
-		}
+		tok = l.preEqual(token.EQ, token.ASSIGN)
 	case '!':
-		if l.peekChar() == '=' {
-			ch := l.ch
-			l.readChar()
-			tok = token.Token{Type: token.NE, Literal: string(ch) + string(l.ch)}
-		} else {
-			tok = newToken(token.BANG, l.ch)
-		}
+		tok = l.preEqual(token.NE, token.BANG)
+	case '<':
+		tok = l.preEqual(token.LE, token.LT)
+	case '>':
+		tok = l.preEqual(token.GE, token.GT)
 	case '[':
 		tok = newToken(token.LBRACKET, l.ch)
 	case ']':
@@ -78,10 +80,6 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.ASTERISK, l.ch)
 	case '/':
 		tok = newToken(token.SLASH, l.ch)
-	case '<':
-		tok = newToken(token.LT, l.ch)
-	case '>':
-		tok = newToken(token.GT, l.ch)
 	case ':':
 		tok = newToken(token.COLON, l.ch)
 	case '"':

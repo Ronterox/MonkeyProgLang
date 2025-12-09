@@ -188,6 +188,16 @@ func buildInfix(node *ast.InfixExpression, env *object.Environment) object.Objec
 				return TRUE
 			}
 			return FALSE
+		case token.LE:
+			if left.Value <= right.Value {
+				return TRUE
+			}
+			return FALSE
+		case token.GE:
+			if left.Value >= right.Value {
+				return TRUE
+			}
+			return FALSE
 		case token.EQ:
 			if left.Value == right.Value {
 				return TRUE

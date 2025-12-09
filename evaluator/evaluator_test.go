@@ -157,6 +157,14 @@ func TestBuiltinFunctions(t *testing.T) {
 			`,
 			2,
 		},
+		{`
+			let arr = [1, 2, 3];
+			push(arr, 1)
+			last(push(arr, 2))
+			`,
+			2,
+		},
+		{`first("hi")`, "h"},
 	}
 
 	for _, tt := range tests {
@@ -480,7 +488,11 @@ func TestEvalBoolean(t *testing.T) {
 		{"5 < 5", false},
 		{"2 < 3", true},
 		{"3 > 2", true},
+		{"3 <= 3", true},
+		{"3 >= 3", true},
 		{"1 != 0", true},
+		{"1 < 2 == true", true},
+		{"1 < 2 != false", true},
 		{"(1 < 2) == true", true},
 		{"(1 < 2) != false", true},
 		{"true != false", true},
@@ -498,7 +510,7 @@ func TestEvalBoolean(t *testing.T) {
 func testBoolean(t *testing.T, evaluated object.Object, expected bool) bool {
 	obj, ok := evaluated.(*object.Boolean)
 	if !ok {
-		t.Errorf("expected Boolean got %T", evaluated)
+		t.Errorf("expected Boolean got %T=(%v)", evaluated, evaluated)
 		return false
 	}
 
