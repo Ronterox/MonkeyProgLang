@@ -218,6 +218,12 @@ func TestStringLiteralExpression(t *testing.T) {
 	if !testLiteralExpression(t, stmt.Expression, `"foobar"`) {
 		return
 	}
+
+	stmt = parseSingleStatement(t, `"a\n";`)
+	if !testLiteralExpression(t, stmt.Expression, `"a
+"`) {
+		return
+	}
 }
 
 func TestBooleanExpression(t *testing.T) {

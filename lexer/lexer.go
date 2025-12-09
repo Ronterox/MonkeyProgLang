@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"monkey/token"
+	"strings"
 )
 
 // TODO: I should probably introduce line errors at least or column
@@ -120,7 +121,7 @@ func (l *Lexer) readString() string {
 	for l.ch != '"' && l.ch != 0 {
 		l.readChar()
 	}
-	return l.input[position:l.position]
+	return strings.ReplaceAll(l.input[position:l.position], "\\n", "\n")
 }
 
 func (l *Lexer) readNumber() string {
