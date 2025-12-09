@@ -137,16 +137,16 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`len("hello world")`, 11},
 		{`len(1)`, "argument to `len` not supported, got INTEGER"},
 		{`len("one", "two")`, "wrong number of arguments. got=2, want=1"},
-		{`first([1, 2])`, 1},
+		{`head([1, 2])`, 1},
 		{`last([1, 2])`, 2},
-		{`first([])`, nil},
+		{`head([])`, nil},
 		{`last([])`, nil},
-		{`first(rest([1, 2]))`, 2},
-		{`first(rest([2]))`, nil},
+		{`head(tail([1, 2]))`, 2},
+		{`head(tail([2]))`, nil},
 		{`
 			let arr = [1, 2, 3];
-			rest(rest(arr))
-			first(arr)
+			tail(tail(arr))
+			head(arr)
 			`,
 			1,
 		},
@@ -164,7 +164,12 @@ func TestBuiltinFunctions(t *testing.T) {
 			`,
 			2,
 		},
-		{`first("hi")`, "h"},
+		{`head("his")`, "h"},
+		{`tail("his")`, "is"},
+		{`last("his")`, "s"},
+		{`head("")`, nil},
+		{`tail("")`, nil},
+		{`last("")`, nil},
 	}
 
 	for _, tt := range tests {
@@ -175,7 +180,9 @@ func TestBuiltinFunctions(t *testing.T) {
 		case string:
 			errObj, ok := evaluated.(*object.Error)
 			if !ok {
-				t.Errorf("object is not Error. got=%T (%+v)", evaluated, evaluated)
+				if !testString(t, evaluated, expected) {
+					t.Errorf("object is not Error. got=%T (%+v)", evaluated, evaluated)
+				}
 				continue
 			}
 			if errObj.Message != expected {

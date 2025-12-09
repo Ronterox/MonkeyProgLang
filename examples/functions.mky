@@ -10,7 +10,7 @@ let map = fn(arr, f) {
 		if len(arr) == 0 {
 			return acc
 		}
-		iter(rest(arr), push(acc, f(first(arr))))
+		iter(tail(arr), push(acc, f(head(arr))))
 	}
 	iter(arr, [])
 }
@@ -22,7 +22,7 @@ let reduce = fn(arr, acc, f) {
 		if len(arr) == 0 {
 			return acc
 		}
-		iter(rest(arr), f(first(arr), acc))
+		iter(tail(arr), f(head(arr), acc))
 	}
 	iter(arr, acc)
 }

@@ -313,20 +313,25 @@ func buildBuiltin(node *ast.Identifier, env *object.Environment) object.Object {
 				return newError("argument to `len` not supported, got %s", args[0].Type())
 			},
 		}
-	case "first":
+	case "head":
 		return &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
 				if len(args) != 1 {
 					return newError("wrong number of arguments. got=%d, want=1", len(args))
 				}
-				switch arr := args[0].(type) {
+				switch e := args[0].(type) {
 				case *object.Array:
-					if len(arr.Elements) == 0 {
+					if len(e.Elements) == 0 {
 						return NULL
 					}
-					return arr.Elements[0]
+					return e.Elements[0]
+				case *object.String:
+					if len(e.Value) == 0 {
+						return NULL
+					}
+					return &object.String{Value: string(e.Value[0])}
 				}
-				return newError("first is not implemented for %s", args[0].Type())
+				return newError("head is not implemented for %s", args[0].Type())
 			},
 		}
 	case "last":
@@ -335,31 +340,41 @@ func buildBuiltin(node *ast.Identifier, env *object.Environment) object.Object {
 				if len(args) != 1 {
 					return newError("wrong number of arguments. got=%d, want=1", len(args))
 				}
-				switch arr := args[0].(type) {
+				switch e := args[0].(type) {
 				case *object.Array:
-					if length := len(arr.Elements); length > 0 {
-						return arr.Elements[length-1]
+					if length := len(e.Elements); length > 0 {
+						return e.Elements[length-1]
 					}
 					return NULL
+				case *object.String:
+					if len(e.Value) == 0 {
+						return NULL
+					}
+					return &object.String{Value: string(e.Value[len(e.Value)-1])}
 				}
 				return newError("last is not implemented for %s", args[0].Type())
 			},
 		}
-	case "rest":
+	case "tail":
 		return &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
 				if len(args) != 1 {
 					return newError("wrong number of arguments. got=%d, want=1", len(args))
 				}
-				switch arr := args[0].(type) {
+				switch e := args[0].(type) {
 				case *object.Array:
 					newArr := &object.Array{}
-					if length := len(arr.Elements); length != 0 {
-						newArr.Elements = arr.Elements[1:length]
+					if length := len(e.Elements); length != 0 {
+						newArr.Elements = e.Elements[1:length]
 					}
 					return newArr
+				case *object.String:
+					if len(e.Value) == 0 {
+						return NULL
+					}
+					return &object.String{Value: string(e.Value[1:])}
 				}
-				return newError("rest is not implemented for %s", args[0].Type())
+				return newError("tail is not implemented for %s", args[0].Type())
 			},
 		}
 	case "push":
@@ -372,7 +387,7 @@ func buildBuiltin(node *ast.Identifier, env *object.Environment) object.Object {
 				case *object.Array:
 					return &object.Array{Elements: append(arr.Elements, args[1])}
 				}
-				return newError("rest is not implemented for %s", args[0].Type())
+				return newError("push is not implemented for %s", args[0].Type())
 			},
 		}
 	case "string":

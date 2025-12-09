@@ -51,9 +51,9 @@ Some builtins utilities:
 
 ```js
 len(arr) // Returns the length of the array
-first(arr) // Returns the first element of the array
+head(arr) // Returns the first element of the array
 last(arr) // Returns the last element of the array
-rest(arr) // Returns the rest of the array
+tail(arr) // Returns the rest of the array
 push(arr, value) // Pushes a value to the end of the array
 string(value, value, ..., value) // Converts any value to a string
 echo(value, value, ..., value) // Echos any value to the console
