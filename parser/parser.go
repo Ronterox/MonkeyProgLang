@@ -13,6 +13,8 @@ import (
 const (
 	_ = iota
 	LOWEST
+	OR
+	AND
 	EQUALS
 	LESSGREATER // < or >
 	SUM
@@ -23,6 +25,8 @@ const (
 )
 
 var precedences = map[token.TokenType]int{
+	token.OR:       OR,
+	token.AND:      AND,
 	token.EQ:       EQUALS,
 	token.NE:       EQUALS,
 	token.LT:       LESSGREATER,
@@ -80,6 +84,8 @@ func New(lexer *lexer.Lexer) *Parser {
 	p.infixParseFns[token.ASTERISK] = p.parseInfixExpression
 	p.infixParseFns[token.PERCENT] = p.parseInfixExpression
 	p.infixParseFns[token.SLASH] = p.parseInfixExpression
+	p.infixParseFns[token.AND] = p.parseInfixExpression
+	p.infixParseFns[token.OR] = p.parseInfixExpression
 	p.infixParseFns[token.EQ] = p.parseInfixExpression
 	p.infixParseFns[token.NE] = p.parseInfixExpression
 	p.infixParseFns[token.LT] = p.parseInfixExpression

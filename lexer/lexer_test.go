@@ -33,6 +33,7 @@ func TestNextToken(t *testing.T) {
 
 	5 >= 10 <= 5
 	10 % 10
+	true & true | false
 	` + "`this is a literal template\\n string`"
 
 	tests := []struct {
@@ -149,6 +150,12 @@ func TestNextToken(t *testing.T) {
 		{token.INT, "10"},
 		{token.PERCENT, "%"},
 		{token.INT, "10"},
+
+		{token.TRUE, "true"},
+		{token.AND, "&"},
+		{token.TRUE, "true"},
+		{token.OR, "|"},
+		{token.FALSE, "false"},
 
 		{token.TEMPLATE, `this is a literal template\n string`},
 		{token.EOF, ""},

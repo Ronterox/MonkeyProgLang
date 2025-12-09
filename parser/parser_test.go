@@ -480,6 +480,14 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"((a + add((b * c))) + d)",
 		},
 		{
+			"a | add(b & c) | d",
+			"((a | add((b & c))) | d)",
+		},
+		{
+			"5 > 4 == 3 < 4 & c | b",
+			"((((5 > 4) == (3 < 4)) & c) | b)",
+		},
+		{
 			"add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
 			"add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
 		},

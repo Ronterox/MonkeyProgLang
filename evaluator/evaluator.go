@@ -226,6 +226,16 @@ func buildInfix(node *ast.InfixExpression, env *object.Environment) object.Objec
 				return TRUE
 			}
 			return FALSE
+		case token.AND:
+			if left.Value && right.Value {
+				return TRUE
+			}
+			return FALSE
+		case token.OR:
+			if left.Value || right.Value {
+				return TRUE
+			}
+			return FALSE
 		}
 	} else if left.Type() == object.STRING && right.Type() == object.STRING {
 		left := left.(*object.String)

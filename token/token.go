@@ -19,12 +19,14 @@ const (
 	BANG     = "!"
 	COLON    = ":"
 
-	LT = "<"
-	GT = ">"
-	LE = "<="
-	GE = ">="
-	EQ = "=="
-	NE = "!="
+	LT  = "<"
+	GT  = ">"
+	LE  = "<="
+	GE  = ">="
+	EQ  = "=="
+	NE  = "!="
+	AND = "&"
+	OR  = "|"
 
 	// Delimiters
 	COMMA     = ","
