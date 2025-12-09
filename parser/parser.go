@@ -33,6 +33,7 @@ var precedences = map[token.TokenType]int{
 	token.MINUS:    SUM,
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
+	token.PERCENT:  PRODUCT,
 	token.LPAREN:   CALL,
 	token.LBRACKET: INDEX,
 }
@@ -77,6 +78,7 @@ func New(lexer *lexer.Lexer) *Parser {
 	p.infixParseFns[token.PLUS] = p.parseInfixExpression
 	p.infixParseFns[token.MINUS] = p.parseInfixExpression
 	p.infixParseFns[token.ASTERISK] = p.parseInfixExpression
+	p.infixParseFns[token.PERCENT] = p.parseInfixExpression
 	p.infixParseFns[token.SLASH] = p.parseInfixExpression
 	p.infixParseFns[token.EQ] = p.parseInfixExpression
 	p.infixParseFns[token.NE] = p.parseInfixExpression

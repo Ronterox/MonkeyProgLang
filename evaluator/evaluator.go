@@ -174,6 +174,8 @@ func buildInfix(node *ast.InfixExpression, env *object.Environment) object.Objec
 			return &object.Integer{Value: left.Value + right.Value}
 		case token.ASTERISK:
 			return &object.Integer{Value: left.Value * right.Value}
+		case token.PERCENT:
+			return &object.Integer{Value: left.Value % right.Value}
 		case token.MINUS:
 			return &object.Integer{Value: left.Value - right.Value}
 		case token.SLASH:
