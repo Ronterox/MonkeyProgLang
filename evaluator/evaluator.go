@@ -235,9 +235,15 @@ func buildInfix(node *ast.InfixExpression, env *object.Environment) object.Objec
 		case token.MINUS:
 			return &object.String{Value: strings.ReplaceAll(left.Value, right.Value, "")}
 		case token.EQ:
-			return &object.Boolean{Value: left.Value == right.Value}
+			if left.Value == right.Value {
+				return TRUE
+			}
+			return FALSE
 		case token.NE:
-			return &object.Boolean{Value: left.Value != right.Value}
+			if left.Value != right.Value {
+				return TRUE
+			}
+			return FALSE
 		}
 	} else if left.Type() == object.INTEGER && right.Type() == object.STRING {
 		left := left.(*object.Integer)
