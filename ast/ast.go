@@ -267,6 +267,8 @@ func (a *ArrayLiteral) String() string {
 	return out.String()
 }
 
+type TemplateString = ArrayLiteral
+
 type IndexExpression struct {
 	Token token.Token
 	Left  Expression

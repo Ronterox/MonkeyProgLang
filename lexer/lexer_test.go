@@ -34,7 +34,7 @@ func TestNextToken(t *testing.T) {
 	5 >= 10 <= 5
 	10 % 10
 	true & true | false
-	` + "`this is a literal template\\n string`"
+	` + "`this is a $literal template\\n string`"
 
 	tests := []struct {
 		expectedType    string
@@ -157,7 +157,10 @@ func TestNextToken(t *testing.T) {
 		{token.OR, "|"},
 		{token.FALSE, "false"},
 
-		{token.TEMPLATE, `this is a literal template\n string`},
+		{token.TEMPLATE, `this is a `},
+		{token.IDENT, `literal`},
+		{token.TEMPLATE, ` template\n string`},
+
 		{token.EOF, ""},
 	}
 
@@ -167,7 +170,7 @@ func TestNextToken(t *testing.T) {
 		tok := l.NextToken()
 
 		if tok.Type != token.TokenType(tt.expectedType) {
-			t.Fatalf("tests[%d] - token type wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
+			t.Errorf("tests[%d] - token type wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
 		}
 
 		if tok.Literal != tt.expectedLiteral {

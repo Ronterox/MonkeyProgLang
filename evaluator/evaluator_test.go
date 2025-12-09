@@ -321,6 +321,28 @@ func TestStringConcatenation(t *testing.T) {
 	}
 }
 
+func TestTemplateEval(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"let age = 20; `hi my age is $age`", "hi my age is 20"},
+		{"let n = \"Richard\"; `hi my name is $n but you can call me $n`", "hi my name is Richard but you can call me Richard"},
+		{"`this should be $n`", "this should be null"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		str, ok := evaluated.(*object.String)
+		if !ok {
+			t.Fatalf("object is not String. got=%T (%+v)", evaluated, evaluated)
+		}
+		if str.Value != tt.expected {
+			t.Errorf("String is wrong. got=%q, expected=%q", str.Value, tt.expected)
+		}
+	}
+}
+
 func TestEvalIfExpression(t *testing.T) {
 	tests := []struct {
 		input    string

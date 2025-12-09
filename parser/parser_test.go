@@ -141,7 +141,7 @@ func TestParsingHashStringLiterals(t *testing.T) {
 
 	hash, ok := stmt.Expression.(*ast.HashLiteral)
 	if !ok {
-		t.Fatalf("exp not ast.ArrayLiteral. got=%T", stmt.Expression)
+		t.Fatalf("exp not ast.HashLiteral. got=%T", stmt.Expression)
 	}
 
 	if len(hash.Pairs) != 3 {
@@ -227,10 +227,19 @@ func TestStringLiteralExpression(t *testing.T) {
 }
 
 func TestTemplateExpression(t *testing.T) {
-	stmt := parseSingleStatement(t, "`a\\n`")
-	if !testLiteralExpression(t, stmt.Expression, `"a\n"`) {
-		return
+	stmt := parseSingleStatement(t, "`a $literal template\n`")
+	exp, ok := stmt.Expression.(*ast.TemplateString)
+	if !ok {
+		t.Fatalf("expected TemplateString got %T", stmt.Expression)
 	}
+
+	if len(exp.Elements) != 3 {
+		t.Fatalf("expected 3 elements got %d", len(exp.Elements))
+	}
+
+	testLiteralExpression(t, exp.Elements[0], `"a "`)
+	testLiteralExpression(t, exp.Elements[1], "literal")
+	testLiteralExpression(t, exp.Elements[2], `" template\n"`)
 }
 
 func TestBooleanExpression(t *testing.T) {

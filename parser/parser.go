@@ -308,7 +308,7 @@ func (p *Parser) parseString() ast.Expression {
 }
 
 func (p *Parser) parseTemplate() ast.Expression {
-	return &ast.StringLiteral{Token: p.currToken, Value: p.currToken.Literal}
+	return &ast.TemplateString{Token: p.currToken}
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {

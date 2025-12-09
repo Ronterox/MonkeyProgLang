@@ -10,10 +10,12 @@ type Lexer struct {
 	position     int
 	readPosition int
 	ch           byte
+	context      token.TokenType
 }
 
 func New(input string) *Lexer {
 	l := &Lexer{input: input}
+	l.context = token.EOF
 	l.readChar()
 	return l
 }
@@ -45,7 +47,9 @@ func (l *Lexer) preEqual(pre token.TokenType, alone token.TokenType) token.Token
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
-	l.skipWhitespace()
+	if l.context == token.EOF {
+		l.skipWhitespace()
+	}
 
 	switch l.ch {
 	case '=':
@@ -90,15 +94,28 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.OR, l.ch)
 	case '"':
 		tok.Type = token.STRING
-		tok.Literal = l.readString('"')
+		tok.Literal = l.readString()
+	case '$':
+		if l.context == token.TEMPLATE {
+			l.readChar()
+			tok.Literal = l.readIdentifier()
+			tok.Type = token.IDENT
+			return tok
+		} else {
+			return newToken(token.ILLEGAL, l.ch)
+		}
 	case '`':
+		l.context = token.TEMPLATE
 		tok.Type = token.TEMPLATE
-		tok.Literal = l.readString('`')
+		tok.Literal = l.readTemplate(1)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
 	default:
-		if isLetter(l.ch) {
+		if l.context == token.TEMPLATE {
+			tok.Type = token.TEMPLATE
+			tok.Literal = l.readTemplate(0)
+		} else if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
@@ -123,13 +140,29 @@ func (l *Lexer) readIdentifier() string {
 	return l.input[position:l.position]
 }
 
-func (l *Lexer) readString(del byte) string {
+func (l *Lexer) readString() string {
 	position := l.position + 1
 	l.readChar()
-	for l.ch != del && l.ch != 0 {
+	for l.ch != '"' && l.ch != 0 {
 		l.readChar()
 	}
 	return l.input[position:l.position]
+}
+
+func (l *Lexer) readTemplate(offset int) string {
+	position := l.position + offset
+	l.readChar()
+
+	for l.ch != '`' && l.peekChar() != '$' && l.ch != 0 {
+		l.readChar()
+	}
+
+	if l.ch == '`' {
+		l.context = token.EOF
+		return l.input[position:l.position]
+	}
+
+	return l.input[position : l.position+1]
 }
 
 func (l *Lexer) readNumber() string {
