@@ -9,6 +9,12 @@ build() {
 	./utilities/upx monkey
 }
 
+# @cmd Builds and install the monkey interpreter
+install() {
+	build
+	mv monkey ~/.local/bin/monkey
+}
+
 # See more details at https://github.com/sigoden/argc
 eval "$(start-tool extend)"
 eval "$(argc --argc-eval "$0" "$@")"
