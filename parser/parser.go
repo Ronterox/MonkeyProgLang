@@ -7,6 +7,7 @@ import (
 	"monkey/lexer"
 	"monkey/token"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -68,6 +69,7 @@ func New(lexer *lexer.Lexer) *Parser {
 	p.prefixParseFns[token.IF] = p.parseIfElseExpression
 	p.prefixParseFns[token.FUNCTION] = p.parseFunctionExpression
 	p.prefixParseFns[token.STRING] = p.parseString
+	p.prefixParseFns[token.TEMPLATE] = p.parseTemplate
 	p.prefixParseFns[token.LBRACKET] = p.parseArrayLiteral
 	p.prefixParseFns[token.LBRACE] = p.parseHashLiteral
 
@@ -293,7 +295,12 @@ func (p *Parser) parseString() ast.Expression {
 		p.nextToken()
 		literal.WriteString(p.currToken.Literal)
 	}
-	return &ast.StringLiteral{Token: p.currToken, Value: literal.String()}
+	preprocessed := strings.ReplaceAll(literal.String(), "\\n", "\n")
+	return &ast.StringLiteral{Token: p.currToken, Value: preprocessed}
+}
+
+func (p *Parser) parseTemplate() ast.Expression {
+	return &ast.StringLiteral{Token: p.currToken, Value: p.currToken.Literal}
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {

@@ -226,6 +226,13 @@ func TestStringLiteralExpression(t *testing.T) {
 	}
 }
 
+func TestTemplateExpression(t *testing.T) {
+	stmt := parseSingleStatement(t, "`a\\n`")
+	if !testLiteralExpression(t, stmt.Expression, `"a\n"`) {
+		return
+	}
+}
+
 func TestBooleanExpression(t *testing.T) {
 	stmt := parseSingleStatement(t, "true;")
 	if !testLiteralExpression(t, stmt.Expression, true) {
@@ -634,7 +641,7 @@ func testLiteralExpression(t *testing.T, exp ast.Expression, expected any) bool 
 	case int64:
 		return testIntegerLiteral(t, exp, v)
 	case string:
-		if v[0] == '"' {
+		if v[0] == '"' || v[0] == '`' {
 			return testString(t, exp, v)
 		}
 		return testIdentifier(t, exp, v)

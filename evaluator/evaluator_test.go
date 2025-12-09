@@ -170,6 +170,7 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`head("")`, nil},
 		{`tail("")`, nil},
 		{`last("")`, nil},
+		{`raw("hi\n")`, `"hi\n"`},
 	}
 
 	for _, tt := range tests {
@@ -456,7 +457,7 @@ func TestEvalString(t *testing.T) {
 	}{
 		{`"foobar"`, "foobar"},
 		{`"foo and bar"`, "foo and bar"},
-		{`"foo\nand\nbar"`, "foo\\nand\\nbar"},
+		{`"foo\nand\nbar"`, "foo\nand\nbar"},
 	}
 
 	for _, tt := range tests {

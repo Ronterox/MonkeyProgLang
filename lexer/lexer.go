@@ -2,7 +2,6 @@ package lexer
 
 import (
 	"monkey/token"
-	"strings"
 )
 
 // TODO: I should probably introduce line errors at least or column
@@ -85,7 +84,10 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.COLON, l.ch)
 	case '"':
 		tok.Type = token.STRING
-		tok.Literal = l.readString()
+		tok.Literal = l.readString('"')
+	case '`':
+		tok.Type = token.TEMPLATE
+		tok.Literal = l.readString('`')
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -115,13 +117,13 @@ func (l *Lexer) readIdentifier() string {
 	return l.input[position:l.position]
 }
 
-func (l *Lexer) readString() string {
+func (l *Lexer) readString(del byte) string {
 	position := l.position + 1
 	l.readChar()
-	for l.ch != '"' && l.ch != 0 {
+	for l.ch != del && l.ch != 0 {
 		l.readChar()
 	}
-	return strings.ReplaceAll(l.input[position:l.position], "\\n", "\n")
+	return l.input[position:l.position]
 }
 
 func (l *Lexer) readNumber() string {

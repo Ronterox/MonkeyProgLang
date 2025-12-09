@@ -415,6 +415,16 @@ func buildBuiltin(node *ast.Identifier, env *object.Environment) object.Object {
 				return NULL
 			},
 		}
+	case "raw":
+		return &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				all := []string{}
+				for _, arg := range args {
+					all = append(all, arg.Inspect())
+				}
+				return &object.String{Value: fmt.Sprintf("%q", strings.Join(all, ""))}
+			},
+		}
 	case "read":
 		return &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {

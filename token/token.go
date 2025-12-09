@@ -4,9 +4,10 @@ const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
 
-	STRING = "STRING"
-	IDENT  = "IDENT"
-	INT    = "INT"
+	STRING   = "STRING"
+	TEMPLATE = "TEMPLATE"
+	IDENT    = "IDENT"
+	INT      = "INT"
 
 	// Operators
 	ASSIGN   = "="
