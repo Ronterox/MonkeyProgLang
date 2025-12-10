@@ -34,7 +34,7 @@ func TestNextToken(t *testing.T) {
 	5 >= 10 <= 5
 	10 % 10
 	true & true | false
-	` + "`this is a $literal template\\n string`" + "`at $end`"
+	` + "`this is a $literal template\\n string`" + "`at $end`" + "`$start at`"
 
 	tests := []struct {
 		expectedType    string
@@ -163,6 +163,9 @@ func TestNextToken(t *testing.T) {
 
 		{token.TEMPLATE, `at `},
 		{token.IDENT, `end`},
+
+		{token.IDENT, `start`},
+		{token.TEMPLATE, ` at`},
 
 		{token.EOF, ""},
 	}

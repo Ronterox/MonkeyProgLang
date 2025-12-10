@@ -44,6 +44,26 @@ func (l *Lexer) preEqual(pre token.TokenType, alone token.TokenType) token.Token
 	}
 }
 
+func (l *Lexer) readTemplateIdent() token.Token {
+	var tok token.Token
+
+	if l.context == token.TEMPLATE {
+		l.readChar()
+		if isLetter(l.ch) {
+			tok.Literal = l.readIdentifier()
+			tok.Type = token.IDENT
+
+			if l.ch == '`' {
+				l.readChar()
+				l.context = token.EOF
+			}
+
+			return tok
+		}
+	}
+	return newToken(token.ILLEGAL, l.ch)
+}
+
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
@@ -96,24 +116,14 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Type = token.STRING
 		tok.Literal = l.readString()
 	case '$':
-		if l.context == token.TEMPLATE {
-			l.readChar()
-			if isLetter(l.ch) {
-				tok.Literal = l.readIdentifier()
-				tok.Type = token.IDENT
-
-				if l.ch == '`' {
-					l.readChar()
-					l.context = token.EOF
-				}
-
-				return tok
-			}
-		}
-		return newToken(token.ILLEGAL, l.ch)
+		return l.readTemplateIdent()
 	case '`':
 		if l.context != token.TEMPLATE {
 			l.context = token.TEMPLATE
+			if l.peekChar() == '$' {
+				l.readChar()
+				return l.readTemplateIdent()
+			}
 			tok.Type = token.TEMPLATE
 			tok.Literal = l.readTemplate(1)
 		}
