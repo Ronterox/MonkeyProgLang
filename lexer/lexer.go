@@ -121,11 +121,7 @@ func (l *Lexer) NextToken() token.Token {
 		if l.context != token.TEMPLATE {
 			l.context = token.TEMPLATE
 			tok.Type = token.TEMPLATE
-			if l.peekChar() == '$' {
-				tok.Literal = ""
-			} else {
-				tok.Literal = l.readTemplate(1)
-			}
+			tok.Literal = l.readTemplate(1)
 		}
 	case 0:
 		tok.Literal = ""
@@ -169,6 +165,10 @@ func (l *Lexer) readString() string {
 }
 
 func (l *Lexer) readTemplate(offset int) string {
+	if l.peekChar() == '$' {
+		return ""
+	}
+
 	position := l.position + offset
 	l.readChar()
 
