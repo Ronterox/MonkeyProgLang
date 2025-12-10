@@ -120,12 +120,12 @@ func (l *Lexer) NextToken() token.Token {
 	case '`':
 		if l.context != token.TEMPLATE {
 			l.context = token.TEMPLATE
-			if l.peekChar() == '$' {
-				l.readChar()
-				return l.readTemplateIdent()
-			}
 			tok.Type = token.TEMPLATE
-			tok.Literal = l.readTemplate(1)
+			if l.peekChar() == '$' {
+				tok.Literal = ""
+			} else {
+				tok.Literal = l.readTemplate(1)
+			}
 		}
 	case 0:
 		tok.Literal = ""

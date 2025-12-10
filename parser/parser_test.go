@@ -240,6 +240,20 @@ func TestTemplateExpression(t *testing.T) {
 	testLiteralExpression(t, exp.Elements[0], `"a "`)
 	testLiteralExpression(t, exp.Elements[1], "literal")
 	testLiteralExpression(t, exp.Elements[2], `" template\n"`)
+
+	stmt = parseSingleStatement(t, "`$literal a`")
+	exp, ok = stmt.Expression.(*ast.TemplateString)
+	if !ok {
+		t.Fatalf("expected TemplateString got %T", stmt.Expression)
+	}
+
+	if len(exp.Elements) != 3 {
+		t.Fatalf("expected 3 elements got %d", len(exp.Elements))
+	}
+
+	testLiteralExpression(t, exp.Elements[0], `""`)
+	testLiteralExpression(t, exp.Elements[1], "literal")
+	testLiteralExpression(t, exp.Elements[2], `" a"`)
 }
 
 func TestBooleanExpression(t *testing.T) {

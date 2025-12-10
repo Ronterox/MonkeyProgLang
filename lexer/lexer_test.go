@@ -164,6 +164,7 @@ func TestNextToken(t *testing.T) {
 		{token.TEMPLATE, `at `},
 		{token.IDENT, `end`},
 
+		{token.TEMPLATE, ``},
 		{token.IDENT, `start`},
 		{token.TEMPLATE, ` at`},
 
