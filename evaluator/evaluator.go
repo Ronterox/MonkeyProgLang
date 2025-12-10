@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"bytes"
 	"fmt"
 	"monkey/ast"
 	"monkey/lexer"
@@ -16,6 +17,18 @@ var (
 	FALSE = &object.Boolean{Value: false}
 	NULL  = &object.Null{}
 )
+
+func buildTemplateString(node *ast.TemplateString, env *object.Environment) object.Object {
+	var out bytes.Buffer
+	for _, e := range node.Elements {
+		val := Eval(e, env)
+		if isError(val) {
+			return val
+		}
+		out.WriteString(val.Inspect())
+	}
+	return &object.String{Value: out.String()}
+}
 
 func buildArray(node *ast.ArrayLiteral, env *object.Environment) object.Object {
 	elems := []object.Object{}
@@ -558,6 +571,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return &object.String{Value: node.Value}
 	case *ast.ArrayLiteral:
 		return buildArray(node, env)
+	case *ast.TemplateString:
+		return buildTemplateString(node, env)
 	case *ast.IndexExpression:
 		return buildIndex(node, env)
 	case *ast.HashLiteral:
