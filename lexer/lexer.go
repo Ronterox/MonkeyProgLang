@@ -121,7 +121,7 @@ func (l *Lexer) NextToken() token.Token {
 		if l.context != token.TEMPLATE {
 			l.context = token.TEMPLATE
 			tok.Type = token.TEMPLATE
-			tok.Literal = l.readTemplate(1)
+			tok.Literal = l.readTemplate(1, "")
 		}
 	case 0:
 		tok.Literal = ""
@@ -129,7 +129,7 @@ func (l *Lexer) NextToken() token.Token {
 	default:
 		if l.context == token.TEMPLATE {
 			tok.Type = token.TEMPLATE
-			tok.Literal = l.readTemplate(0)
+			tok.Literal = l.readTemplate(0, string(l.ch))
 		} else if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdent(tok.Literal)
@@ -164,9 +164,9 @@ func (l *Lexer) readString() string {
 	return l.input[position:l.position]
 }
 
-func (l *Lexer) readTemplate(offset int) string {
+func (l *Lexer) readTemplate(offset int, skip string) string {
 	if l.peekChar() == '$' {
-		return ""
+		return skip
 	}
 
 	position := l.position + offset

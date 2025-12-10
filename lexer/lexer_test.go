@@ -174,7 +174,7 @@ func TestNextToken(t *testing.T) {
 
 		{token.TEMPLATE, ``},
 		{token.IDENT, `start`},
-		{token.TEMPLATE, ``},
+		{token.TEMPLATE, ` `},
 		{token.IDENT, `end`},
 
 		{token.EOF, ""},
