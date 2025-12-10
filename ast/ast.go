@@ -248,14 +248,14 @@ func (s *StringLiteral) expressionNode()      {}
 func (s *StringLiteral) TokenLiteral() string { return s.Token.Literal }
 func (s *StringLiteral) String() string       { return s.Value }
 
-type ArrayLiteral struct {
+type ExpressionsContainer struct {
 	Token    token.Token
 	Elements []Expression
 }
 
-func (a *ArrayLiteral) expressionNode()      {}
-func (a *ArrayLiteral) TokenLiteral() string { return a.Token.Literal }
-func (a *ArrayLiteral) String() string {
+func (a *ExpressionsContainer) expressionNode()      {}
+func (a *ExpressionsContainer) TokenLiteral() string { return a.Token.Literal }
+func (a *ExpressionsContainer) String() string {
 	var out bytes.Buffer
 	elements := []string{}
 	for _, el := range a.Elements {
@@ -267,7 +267,13 @@ func (a *ArrayLiteral) String() string {
 	return out.String()
 }
 
-type TemplateString = ArrayLiteral
+type ArrayLiteral struct {
+	ExpressionsContainer
+}
+
+type TemplateString struct {
+	ExpressionsContainer
+}
 
 type IndexExpression struct {
 	Token token.Token

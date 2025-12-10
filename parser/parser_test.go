@@ -227,7 +227,7 @@ func TestStringLiteralExpression(t *testing.T) {
 }
 
 func TestTemplateExpression(t *testing.T) {
-	stmt := parseSingleStatement(t, "`a $literal template\n`")
+	stmt := parseSingleStatement(t, "`a $literal template\\n`")
 	exp, ok := stmt.Expression.(*ast.TemplateString)
 	if !ok {
 		t.Fatalf("expected TemplateString got %T", stmt.Expression)

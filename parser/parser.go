@@ -221,7 +221,7 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 }
 
 func (p *Parser) parseArrayLiteral() ast.Expression {
-	exp := &ast.ArrayLiteral{Token: p.currToken}
+	exp := &ast.ArrayLiteral{ExpressionsContainer: ast.ExpressionsContainer{Token: p.currToken}}
 	p.nextToken()
 
 	if !p.currTokenIs(token.RBRACKET) {
@@ -308,7 +308,21 @@ func (p *Parser) parseString() ast.Expression {
 }
 
 func (p *Parser) parseTemplate() ast.Expression {
-	return &ast.TemplateString{Token: p.currToken}
+	tmpl := &ast.TemplateString{ExpressionsContainer: ast.ExpressionsContainer{Token: p.currToken}}
+	tmpl.Elements = append(tmpl.Elements, &ast.StringLiteral{Token: p.currToken, Value: p.currToken.Literal})
+	for p.peekTokenIs(token.TEMPLATE) || p.peekTokenIs(token.IDENT) {
+		var exp ast.Expression
+
+		p.nextToken()
+		if p.currTokenIs(token.TEMPLATE) {
+			exp = &ast.StringLiteral{Token: p.currToken, Value: p.currToken.Literal}
+		} else {
+			exp = &ast.Identifier{Token: p.currToken, Value: p.currToken.Literal}
+		}
+
+		tmpl.Elements = append(tmpl.Elements, exp)
+	}
+	return tmpl
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {

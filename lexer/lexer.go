@@ -98,16 +98,25 @@ func (l *Lexer) NextToken() token.Token {
 	case '$':
 		if l.context == token.TEMPLATE {
 			l.readChar()
-			tok.Literal = l.readIdentifier()
-			tok.Type = token.IDENT
-			return tok
-		} else {
-			return newToken(token.ILLEGAL, l.ch)
+			if isLetter(l.ch) {
+				tok.Literal = l.readIdentifier()
+				tok.Type = token.IDENT
+
+				if l.ch == '`' {
+					l.readChar()
+					l.context = token.EOF
+				}
+
+				return tok
+			}
 		}
+		return newToken(token.ILLEGAL, l.ch)
 	case '`':
-		l.context = token.TEMPLATE
-		tok.Type = token.TEMPLATE
-		tok.Literal = l.readTemplate(1)
+		if l.context != token.TEMPLATE {
+			l.context = token.TEMPLATE
+			tok.Type = token.TEMPLATE
+			tok.Literal = l.readTemplate(1)
+		}
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
