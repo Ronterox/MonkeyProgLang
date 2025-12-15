@@ -18,7 +18,7 @@ let foreach = map;
 
 let reduce = fn(arr, acc, f) {
 	let iter = fn(arr, acc) {
-		if len(arr) == 0 {
+		if len(arr) == 0 | acc == true {
 			return acc
 		}
 		iter(tail(arr), f(head(arr), acc))

@@ -382,6 +382,50 @@ func TestFunctionLiteral(t *testing.T) {
 	testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
 }
 
+func TestParsingMacro(t *testing.T) {
+	stmt := parseSingleStatement(t, "macro(x: int, y: int) { `x + y` }")
+
+	exp, ok := stmt.Expression.(*ast.MacroLiteral)
+	if !ok {
+		t.Errorf("expected Macro, got %T", exp)
+		return
+	}
+
+	if exp.TokenLiteral() != "macro" {
+		t.Errorf("expected TokenLiteral to be macro, got %s", exp.TokenLiteral())
+		return
+	}
+
+	if len(exp.Parameters) != 2 {
+		t.Errorf("expected length of parameters to be 2, got %d", len(exp.Parameters))
+		return
+	}
+
+	if !testLiteralExpression(t, exp.Parameters[0], "x") {
+		return
+	}
+
+	if !testLiteralExpression(t, exp.Pattern[0], "int") {
+		return
+	}
+
+	if !testLiteralExpression(t, exp.Parameters[1], "y") {
+		return
+	}
+
+	if !testLiteralExpression(t, exp.Pattern[1], "int") {
+		return
+	}
+
+	if len(exp.Body.Elements) != 1 {
+		t.Fatalf("expected 1 elements got %d", len(exp.Body.Elements))
+	}
+
+	testLiteralExpression(t, exp.Body.Elements[0], `"x + y"`)
+
+	// TODO: Write the rest of the tests
+}
+
 func TestFunctionParameters(t *testing.T) {
 	tests := []struct {
 		input          string

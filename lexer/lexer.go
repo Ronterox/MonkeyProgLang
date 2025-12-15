@@ -4,13 +4,15 @@ import (
 	"monkey/token"
 )
 
-// TODO: I should probably introduce line errors at least or column
 type Lexer struct {
 	input        string
 	position     int
 	readPosition int
 	ch           byte
-	context      token.TokenType
+
+	context token.TokenType
+	Line    int
+	Col     int
 }
 
 func New(input string) *Lexer {
@@ -66,6 +68,8 @@ func (l *Lexer) readTemplateIdent() token.Token {
 
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
+
+	l.Col++
 
 	if l.context == token.EOF {
 		l.skipWhitespace()
@@ -204,6 +208,10 @@ func (l *Lexer) skipComments() {
 func (l *Lexer) skipWhitespace() {
 	l.skipComments()
 	for l.ch == ' ' || l.ch == '\n' || l.ch == '\t' || l.ch == '\r' {
+		if l.ch == '\n' {
+			l.Line++
+			l.Col = 0
+		}
 		l.readChar()
 		l.skipComments()
 	}

@@ -215,6 +215,32 @@ func (fl *FunctionLiteral) String() string {
 	return out.String()
 }
 
+type MacroLiteral struct {
+	Token      token.Token
+	Parameters []*Identifier
+	Pattern    []Expression
+	Body       *TemplateString
+}
+
+func (m *MacroLiteral) expressionNode()      {}
+func (m *MacroLiteral) TokenLiteral() string { return m.Token.Literal }
+func (m *MacroLiteral) String() string {
+	var out bytes.Buffer
+
+	params := []string{}
+	for i, p := range m.Parameters {
+		params = append(params, p.String()+": "+m.Pattern[i].String())
+	}
+
+	out.WriteString(m.TokenLiteral())
+	out.WriteString(token.LPAREN)
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(token.RPAREN + " ")
+	out.WriteString(m.Body.String())
+
+	return out.String()
+}
+
 type CallExpression struct {
 	Token     token.Token
 	Function  Expression

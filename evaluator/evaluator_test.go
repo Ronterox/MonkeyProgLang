@@ -538,6 +538,9 @@ func TestEvalBoolean(t *testing.T) {
 		{`true & false`, false},
 		{`true | false`, true},
 		{`false | false`, false},
+		{`"" == null`, false},
+		{`1 == null`, false},
+		{`null == null`, true},
 	}
 
 	for _, tt := range tests {

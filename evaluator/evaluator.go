@@ -122,7 +122,7 @@ func buildCall(node *ast.CallExpression, env *object.Environment) object.Object 
 
 	if fn, ok := caller.(*object.Function); ok {
 		if len(node.Arguments) < len(fn.Parameters) {
-			return newError("function missing %d parameters", len(fn.Parameters)-len(node.Arguments))
+			return newError("function %s is missing %d parameters", fn.Inspect(), len(fn.Parameters)-len(node.Arguments))
 		}
 
 		// TODO: Understand this fucking recursion
@@ -289,6 +289,19 @@ func buildInfix(node *ast.InfixExpression, env *object.Environment) object.Objec
 			return &object.String{Value: fmt.Sprintf("%s%d", left.Value, right.Value)}
 		case token.ASTERISK:
 			return &object.String{Value: strings.Repeat(left.Value, int(right.Value))}
+		}
+	} else {
+		switch node.Operator {
+		case token.EQ:
+			if left == right {
+				return TRUE
+			}
+			return FALSE
+		case token.NE:
+			if left != right {
+				return TRUE
+			}
+			return FALSE
 		}
 	}
 

@@ -73,6 +73,7 @@ func New(lexer *lexer.Lexer) *Parser {
 	p.prefixParseFns[token.LPAREN] = p.parseGroupedExpression
 	p.prefixParseFns[token.IF] = p.parseIfElseExpression
 	p.prefixParseFns[token.FUNCTION] = p.parseFunctionExpression
+	p.prefixParseFns[token.MACRO] = p.parseMacroExpression
 	p.prefixParseFns[token.STRING] = p.parseString
 	p.prefixParseFns[token.TEMPLATE] = p.parseTemplate
 	p.prefixParseFns[token.LBRACKET] = p.parseArrayLiteral
@@ -136,7 +137,7 @@ func (p *Parser) Errors() []string {
 }
 
 func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
+	msg := fmt.Sprintf("Error at line %d, col %d. expected next token to be %s, got %s instead", p.l.Line, p.l.Col, t, p.peekToken.Type)
 	p.errors = append(p.errors, msg)
 }
 
@@ -278,6 +279,69 @@ func (p *Parser) parseFunctionExpression() ast.Expression {
 	}
 
 	exp.Body = p.ParseBlockStatement()
+	return exp
+}
+
+// TODO: Also need to parse function text calling
+func (p *Parser) parseMacroExpression() ast.Expression {
+	exp := &ast.MacroLiteral{Token: p.currToken}
+
+	if !p.expectPeek(token.LPAREN) {
+		return nil
+	}
+
+	p.nextToken()
+
+	if !p.currTokenIs(token.RPAREN) {
+		parseParam := func() bool {
+			param := p.parseIdentifier().(*ast.Identifier)
+			exp.Parameters = append(exp.Parameters, param)
+
+			if !p.expectPeek(token.COLON) {
+				return false
+			}
+
+			p.nextToken()
+
+			pattern := p.parseExpression(LOWEST)
+			exp.Pattern = append(exp.Pattern, pattern)
+
+			return true
+		}
+
+		if !parseParam() {
+			return nil
+		}
+
+		for p.peekTokenIs(token.COMMA) {
+			p.nextToken()
+			p.nextToken()
+			if !parseParam() {
+				return nil
+			}
+		}
+
+		if !p.expectPeek(token.RPAREN) {
+			return nil
+		}
+	}
+
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	p.nextToken()
+
+	tmpl, ok := p.parseTemplate().(*ast.TemplateString)
+	if !ok {
+		return nil
+	}
+	exp.Body = tmpl
+
+	if !p.expectPeek(token.RBRACE) {
+		return nil
+	}
+
 	return exp
 }
 
