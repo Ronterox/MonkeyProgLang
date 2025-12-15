@@ -10,4 +10,5 @@ let trap = macro(body: string, end: ["\n", ";"]) {
 }
 
 
-trap { file = open('test.txt') }
+trap { hi }
+// trap { file = open('test.txt') }

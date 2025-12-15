@@ -13,6 +13,7 @@ type Lexer struct {
 	context token.TokenType
 	Line    int
 	Col     int
+	column  int
 }
 
 func New(input string) *Lexer {
@@ -26,6 +27,14 @@ func (l *Lexer) readChar() {
 	l.ch = l.peekChar()
 	l.position = l.readPosition
 	l.readPosition += 1
+
+	if l.ch == '\n' {
+		l.Line++
+		l.Col = l.column
+		l.column = 0
+	} else {
+		l.column++
+	}
 }
 
 func (l *Lexer) peekChar() byte {
@@ -68,8 +77,6 @@ func (l *Lexer) readTemplateIdent() token.Token {
 
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
-
-	l.Col++
 
 	if l.context == token.EOF {
 		l.skipWhitespace()
@@ -208,10 +215,6 @@ func (l *Lexer) skipComments() {
 func (l *Lexer) skipWhitespace() {
 	l.skipComments()
 	for l.ch == ' ' || l.ch == '\n' || l.ch == '\t' || l.ch == '\r' {
-		if l.ch == '\n' {
-			l.Line++
-			l.Col = 0
-		}
 		l.readChar()
 		l.skipComments()
 	}
