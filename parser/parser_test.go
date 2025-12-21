@@ -422,8 +422,6 @@ func TestParsingMacro(t *testing.T) {
 	}
 
 	testLiteralExpression(t, exp.Body.Elements[0], `"x + y"`)
-
-	// TODO: Write the rest of the tests
 }
 
 func TestFunctionParameters(t *testing.T) {

@@ -9,6 +9,5 @@ let trap = macro(body: string, end: ["\n", ";"]) {
 	`
 }
 
-
-trap { hi }
-// trap { file = open('test.txt') }
+// The emacs problem, why is it so good at being hacky (spoiler: is simple, is all the same thing a buffer)
+trap(`file = open('test.txt')`)

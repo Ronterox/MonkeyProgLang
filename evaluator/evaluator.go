@@ -30,14 +30,22 @@ func buildTemplateString(node *ast.TemplateString, env *object.Environment) obje
 	return &object.String{Value: out.String()}
 }
 
-func buildArray(node *ast.ArrayLiteral, env *object.Environment) object.Object {
-	elems := []object.Object{}
-	for _, e := range node.Elements {
-		val := Eval(e, env)
+func buildObjects(expressions []ast.Expression, env *object.Environment) ([]object.Object, *object.Error) {
+	objs := []object.Object{}
+	for _, exp := range expressions {
+		val := Eval(exp, env)
 		if isError(val) {
-			return val
+			return objs, val.(*object.Error)
 		}
-		elems = append(elems, val)
+		objs = append(objs, val)
+	}
+	return objs, nil
+}
+
+func buildArray(node *ast.ArrayLiteral, env *object.Environment) object.Object {
+	elems, err := buildObjects(node.Elements, env)
+	if err != nil {
+		return err
 	}
 	return &object.Array{Elements: elems}
 }
@@ -142,7 +150,7 @@ func buildCall(node *ast.CallExpression, env *object.Environment) object.Object 
 		return ret
 	}
 
-	return newError("expected FUNCTION call got %s call!", caller.Type())
+	return newError("%s callable not supported yet", caller.Type())
 }
 
 func buildIf(node *ast.IfExpression, env *object.Environment) object.Object {
@@ -346,6 +354,16 @@ func buildBuiltin(node *ast.Identifier, env *object.Environment) object.Object {
 	switch node.Value {
 	case "null":
 		return NULL
+	case "int":
+		return &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				// all := []int64{}
+				// for _, arg := range args {
+				// 	all = append(all, arg.Inspect())
+				// }
+				return &object.Integer{Value: int64(len(args))}
+			},
+		}
 	case "len":
 		return &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
@@ -578,6 +596,12 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return newError("identifier not found: %s", node.Value)
 	case *ast.FunctionLiteral:
 		return &object.Function{Parameters: node.Parameters, Body: node.Body, Env: env}
+	case *ast.MacroLiteral:
+		patterns, err := buildObjects(node.Pattern, env)
+		if err != nil {
+			return err
+		}
+		return &object.Macro{Parameters: node.Parameters, Patterns: patterns, Body: node.Body, Env: env}
 	case *ast.CallExpression:
 		return buildCall(node, env)
 	case *ast.StringLiteral:

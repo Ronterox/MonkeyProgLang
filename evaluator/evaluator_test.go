@@ -218,6 +218,43 @@ func TestFunction(t *testing.T) {
 	}
 }
 
+func TestMacro(t *testing.T) {
+	input := "macro(x: int, y: int) { `x + y` };"
+	evaluated := testEval(input)
+
+	m, ok := evaluated.(*object.Macro)
+	if !ok {
+		t.Fatalf("expected Macro got %T=(%v)", evaluated, evaluated)
+	}
+
+	tests := []struct {
+		param   string
+		pattern string
+	}{
+		{"x", "int"},
+		{"y", "int"},
+	}
+
+	if len(m.Parameters) != len(tests) {
+		t.Fatalf("expected %d parameter got %d", len(tests), len(m.Parameters))
+	}
+
+	for i, tt := range tests {
+		if m.Parameters[i].String() != "x" {
+			t.Fatalf("expected x as parameter got %s", m.Parameters[i].String())
+		}
+
+		if m.Patterns[i].Inspect() != tt.pattern {
+			t.Fatalf("expected %s as pattern got %s", tt.pattern, m.Patterns[i].Inspect())
+		}
+	}
+
+	expectedBody := "`x + y`"
+	if m.Body.String() != expectedBody {
+		t.Fatalf("expected body to be %s got %s", expectedBody, m.Body.String())
+	}
+}
+
 func TestFunctionCall(t *testing.T) {
 	tests := []struct {
 		input    string

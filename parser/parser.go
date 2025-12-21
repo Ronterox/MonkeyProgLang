@@ -282,7 +282,6 @@ func (p *Parser) parseFunctionExpression() ast.Expression {
 	return exp
 }
 
-// TODO: Also need to parse function text calling
 func (p *Parser) parseMacroExpression() ast.Expression {
 	exp := &ast.MacroLiteral{Token: p.currToken}
 

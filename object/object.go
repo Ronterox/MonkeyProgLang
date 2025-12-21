@@ -15,6 +15,7 @@ const (
 	NULL     = "NULL"
 	ERROR    = "ERROR"
 	FUNCTION = "FUNCTION"
+	MACRO    = "MACRO"
 	STRING   = "STRING"
 	BUILTIN  = "BUILTIN"
 	ARRAY    = "ARRAY"
@@ -81,6 +82,32 @@ func (f *Function) Inspect() string {
 	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(") {\n")
 	out.WriteString(f.Body.String())
+	out.WriteString("\n}")
+
+	return out.String()
+}
+
+type Macro struct {
+	Parameters []*ast.Identifier
+	Patterns   []Object
+	Body       *ast.TemplateString
+	Env        *Environment
+}
+
+func (m *Macro) Type() ObjectType { return MACRO }
+func (m *Macro) Inspect() string {
+	var out bytes.Buffer
+
+	params := []string{}
+	for i, p := range m.Parameters {
+		params = append(params, p.String(), ":", m.Patterns[i].Inspect())
+	}
+
+	out.WriteString("macro")
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(") {\n")
+	out.WriteString(m.Body.String())
 	out.WriteString("\n}")
 
 	return out.String()
