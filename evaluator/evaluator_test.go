@@ -231,8 +231,8 @@ func TestMacro(t *testing.T) {
 		param   string
 		pattern string
 	}{
-		{"x", "int"},
-		{"y", "int"},
+		{"x", "builtin function"},
+		{"y", "builtin function"},
 	}
 
 	if len(m.Parameters) != len(tests) {
@@ -240,7 +240,7 @@ func TestMacro(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		if m.Parameters[i].String() != "x" {
+		if m.Parameters[i].String() != tt.param {
 			t.Fatalf("expected x as parameter got %s", m.Parameters[i].String())
 		}
 
@@ -249,7 +249,7 @@ func TestMacro(t *testing.T) {
 		}
 	}
 
-	expectedBody := "`x + y`"
+	expectedBody := "[x + y]"
 	if m.Body.String() != expectedBody {
 		t.Fatalf("expected body to be %s got %s", expectedBody, m.Body.String())
 	}
