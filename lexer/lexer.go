@@ -82,75 +82,79 @@ func (l *Lexer) NextToken() token.Token {
 		l.skipWhitespace()
 	}
 
-	switch l.ch {
-	case '=':
-		tok = l.preEqual(token.EQ, token.ASSIGN)
-	case '!':
-		tok = l.preEqual(token.NE, token.BANG)
-	case '<':
-		tok = l.preEqual(token.LE, token.LT)
-	case '>':
-		tok = l.preEqual(token.GE, token.GT)
-	case '[':
-		tok = newToken(token.LBRACKET, l.ch)
-	case ']':
-		tok = newToken(token.RBRACKET, l.ch)
-	case '}':
-		tok = newToken(token.RBRACE, l.ch)
-	case '{':
-		tok = newToken(token.LBRACE, l.ch)
-	case ')':
-		tok = newToken(token.RPAREN, l.ch)
-	case '(':
-		tok = newToken(token.LPAREN, l.ch)
-	case ';':
-		tok = newToken(token.SEMICOLON, l.ch)
-	case ',':
-		tok = newToken(token.COMMA, l.ch)
-	case '+':
-		tok = newToken(token.PLUS, l.ch)
-	case '-':
-		tok = newToken(token.MINUS, l.ch)
-	case '*':
-		tok = newToken(token.ASTERISK, l.ch)
-	case '/':
-		tok = newToken(token.SLASH, l.ch)
-	case '%':
-		tok = newToken(token.PERCENT, l.ch)
-	case ':':
-		tok = newToken(token.COLON, l.ch)
-	case '&':
-		tok = newToken(token.AND, l.ch)
-	case '|':
-		tok = newToken(token.OR, l.ch)
-	case '"':
-		tok.Type = token.STRING
-		tok.Literal = l.readString()
-	case '$':
-		return l.readTemplateIdent()
-	case '`':
-		if l.context != token.TEMPLATE {
-			l.context = token.TEMPLATE
-			tok.Type = token.TEMPLATE
-			tok.Literal = l.readTemplate(1, "")
-		}
-	case 0:
-		tok.Literal = ""
-		tok.Type = token.EOF
-	default:
-		if l.context == token.TEMPLATE {
+	if l.context == token.TEMPLATE {
+		if l.ch == '$' {
+			return l.readTemplateIdent()
+		} else {
 			tok.Type = token.TEMPLATE
 			tok.Literal = l.readTemplate(0, string(l.ch))
-		} else if isLetter(l.ch) {
-			tok.Literal = l.readIdentifier()
-			tok.Type = token.LookupIdent(tok.Literal)
-			return tok
-		} else if isNumber(l.ch) {
-			tok.Literal = l.readNumber()
-			tok.Type = token.INT
-			return tok
-		} else {
-			tok = newToken(token.ILLEGAL, l.ch)
+		}
+	} else {
+		switch l.ch {
+		case '=':
+			tok = l.preEqual(token.EQ, token.ASSIGN)
+		case '!':
+			tok = l.preEqual(token.NE, token.BANG)
+		case '<':
+			tok = l.preEqual(token.LE, token.LT)
+		case '>':
+			tok = l.preEqual(token.GE, token.GT)
+		case '[':
+			tok = newToken(token.LBRACKET, l.ch)
+		case ']':
+			tok = newToken(token.RBRACKET, l.ch)
+		case '}':
+			tok = newToken(token.RBRACE, l.ch)
+		case '{':
+			tok = newToken(token.LBRACE, l.ch)
+		case ')':
+			tok = newToken(token.RPAREN, l.ch)
+		case '(':
+			tok = newToken(token.LPAREN, l.ch)
+		case ';':
+			tok = newToken(token.SEMICOLON, l.ch)
+		case ',':
+			tok = newToken(token.COMMA, l.ch)
+		case '+':
+			tok = newToken(token.PLUS, l.ch)
+		case '-':
+			tok = newToken(token.MINUS, l.ch)
+		case '*':
+			tok = newToken(token.ASTERISK, l.ch)
+		case '/':
+			tok = newToken(token.SLASH, l.ch)
+		case '%':
+			tok = newToken(token.PERCENT, l.ch)
+		case ':':
+			tok = newToken(token.COLON, l.ch)
+		case '&':
+			tok = newToken(token.AND, l.ch)
+		case '|':
+			tok = newToken(token.OR, l.ch)
+		case '"':
+			tok.Type = token.STRING
+			tok.Literal = l.readString()
+		case '`':
+			if l.context != token.TEMPLATE {
+				l.context = token.TEMPLATE
+				tok.Type = token.TEMPLATE
+				tok.Literal = l.readTemplate(1, "")
+			}
+		case 0:
+			tok.Literal = ""
+			tok.Type = token.EOF
+		default:
+			if isLetter(l.ch) {
+				tok.Literal = l.readIdentifier()
+				tok.Type = token.LookupIdent(tok.Literal)
+				return tok
+			} else if isNumber(l.ch) {
+				tok.Literal = l.readNumber()
+				tok.Type = token.INT
+				return tok
+			} else {
+				tok = newToken(token.ILLEGAL, l.ch)
+			}
 		}
 	}
 

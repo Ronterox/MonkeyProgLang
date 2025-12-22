@@ -148,6 +148,23 @@ func buildCall(node *ast.CallExpression, env *object.Environment) object.Object 
 			return ret.Value
 		}
 		return ret
+	} else if macro, ok := caller.(*object.Macro); ok {
+		if len(node.Arguments) != 1 {
+			return newError("wrong number of arguments. got=%d, want=1 string template", len(node.Arguments))
+		}
+
+		mEnv := macro.Env.SmartCopy()
+		arg := Eval(node.Arguments[0], env)
+		if isError(arg) {
+			return arg
+		}
+		mEnv.Set(macro.Parameters[0].Value, arg)
+
+		ret := Eval(macro.Body, mEnv)
+		if ret, ok := ret.(*object.Return); ok {
+			return ret.Value
+		}
+		return ret
 	}
 
 	return newError("%s callable not supported yet", caller.Type())
@@ -593,7 +610,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if obj := buildBuiltin(node, env); obj != nil {
 			return obj
 		}
-		return newError("identifier not found: %s", node.Value)
+		return NULL
 	case *ast.FunctionLiteral:
 		return &object.Function{Parameters: node.Parameters, Body: node.Body, Env: env}
 	case *ast.MacroLiteral:

@@ -219,7 +219,7 @@ func TestFunction(t *testing.T) {
 }
 
 func TestMacro(t *testing.T) {
-	input := "macro(x: int, y: int) { `x + y` };"
+	input := "macro(x: int, y: int) { `$x + $y` };"
 	evaluated := testEval(input)
 
 	m, ok := evaluated.(*object.Macro)
@@ -249,9 +249,25 @@ func TestMacro(t *testing.T) {
 		}
 	}
 
-	expectedBody := "[x + y]"
+	expectedBody := "[, x,  + , y]"
 	if m.Body.String() != expectedBody {
 		t.Fatalf("expected body to be %s got %s", expectedBody, m.Body.String())
+	}
+}
+
+func TestMacroCall(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"let call = macro(x: int) { `$x` }; call(`5`);", "5"},
+		{"let call = macro(x: int) { `$x + 5` }; call(`5`);", "5 + 5"},
+		{"let call = macro(x: string) { `$x + 5` }; call(`this is a long text`);", "this is a long text + 5"},
+		{"let call = macro(y: int, x: string) { `let $x = $y;` }; call(`246 ricow`);", "let ricow = 246"},
+	}
+
+	for _, tt := range tests {
+		testString(t, testEval(tt.input), tt.expected)
 	}
 }
 
@@ -317,10 +333,10 @@ func TestErrorHandling(t *testing.T) {
 			`,
 			"Operation + between BOOLEAN and BOOLEAN not implemented!",
 		},
-		{
-			"foobar",
-			"identifier not found: foobar",
-		},
+		// {
+		// 	"foobar",
+		// 	"identifier not found: foobar",
+		// },
 	}
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
@@ -364,8 +380,8 @@ func TestTemplateEval(t *testing.T) {
 		expected string
 	}{
 		{"let age = 20; `hi my age is $age`", "hi my age is 20"},
-		// {"let n = \"Richard\"; `hi my name is $n but you can call me $n`", "hi my name is Richard but you can call me Richard"},
-		// {"`this should be $n`", "this should be null"},
+		{"let n = \"Richard\"; `hi my name is $n but you can call me $n`", "hi my name is Richard but you can call me Richard"},
+		{"`this should be $n`", "this should be null"},
 	}
 
 	for _, tt := range tests {
