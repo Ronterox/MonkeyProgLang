@@ -9,6 +9,7 @@ import (
 	"monkey/parser"
 	"monkey/token"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -116,7 +117,8 @@ func buildCall(node *ast.CallExpression, env *object.Environment) object.Object 
 		return caller
 	}
 
-	if fn, ok := caller.(*object.Builtin); ok {
+	switch fn := caller.(type) {
+	case *object.Builtin:
 		args := []object.Object{}
 		for _, a := range node.Arguments {
 			arg := Eval(a, env)
@@ -126,9 +128,7 @@ func buildCall(node *ast.CallExpression, env *object.Environment) object.Object 
 			args = append(args, arg)
 		}
 		return fn.Fn(args...)
-	}
-
-	if fn, ok := caller.(*object.Function); ok {
+	case *object.Function:
 		if len(node.Arguments) < len(fn.Parameters) {
 			return newError("function %s is missing %d parameters", fn.Inspect(), len(fn.Parameters)-len(node.Arguments))
 		}
@@ -148,19 +148,28 @@ func buildCall(node *ast.CallExpression, env *object.Environment) object.Object 
 			return ret.Value
 		}
 		return ret
-	} else if macro, ok := caller.(*object.Macro); ok {
+	case *object.Macro:
 		if len(node.Arguments) != 1 {
 			return newError("wrong number of arguments. got=%d, want=1 string template", len(node.Arguments))
 		}
 
-		mEnv := macro.Env.SmartCopy()
+		mEnv := fn.Env.SmartCopy()
 		arg := Eval(node.Arguments[0], env)
 		if isError(arg) {
 			return arg
 		}
-		mEnv.Set(macro.Parameters[0].Value, arg)
 
-		ret := Eval(macro.Body, mEnv)
+		if _, ok := arg.(*object.String); ok {
+			i := 0
+
+			variable := fn.Parameters[i].Value
+			// pattern := macro.Patterns[i]
+			text := &object.String{Value: ""}
+
+			mEnv.Set(variable, text)
+		}
+
+		ret := Eval(fn.Body, mEnv)
 		if ret, ok := ret.(*object.Return); ok {
 			return ret.Value
 		}
@@ -374,11 +383,21 @@ func buildBuiltin(node *ast.Identifier, env *object.Environment) object.Object {
 	case "int":
 		return &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				// all := []int64{}
-				// for _, arg := range args {
-				// 	all = append(all, arg.Inspect())
-				// }
-				return &object.Integer{Value: int64(len(args))}
+				if len(args) != 1 {
+					return newError("wrong number of arguments. got=%d, want=1", len(args))
+				}
+
+				switch val := args[0].(type) {
+				case *object.String:
+					if integer, err := strconv.ParseInt(val.Value, 10, 64); err == nil {
+						return &object.Integer{Value: integer}
+					}
+					return newError("could not parse %q as integer", val.Value)
+				case *object.Integer:
+					return val
+				}
+
+				return newError("argument to `int` not supported yet, got %s", args[0].Type())
 			},
 		}
 	case "len":
@@ -528,7 +547,6 @@ func buildBuiltin(node *ast.Identifier, env *object.Environment) object.Object {
 				if len(args) != 1 {
 					return newError("wrong number of arguments. got=%d, want=1", len(args))
 				}
-
 				if text, ok := args[0].(*object.String); ok {
 					lexer := lexer.New(text.Value)
 					parser := parser.New(lexer)

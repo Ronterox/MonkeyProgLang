@@ -260,10 +260,14 @@ func TestMacroCall(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"let call = macro(x: int) { `$x` }; call(`5`);", "5"},
 		{"let call = macro(x: int) { `$x + 5` }; call(`5`);", "5 + 5"},
 		{"let call = macro(x: string) { `$x + 5` }; call(`this is a long text`);", "this is a long text + 5"},
-		{"let call = macro(y: int, x: string) { `let $x = $y;` }; call(`246 ricow`);", "let ricow = 246"},
+		{"let call = macro(y: int, x: string) { `let $x = $y;` }; call(`246 ricow`);", "let ricow = 246;"},
+		{"let call = macro(name: string, param: int) { `$name($param)` }; call(`name245`);", "name(245)"},
+		{
+			"macro(dec: \"def\", name: string, lim: \"(\", param: string, olim: \"):\") { `func $name($param) {}` }(`def fn(input):`)",
+			"func fn(input) {}",
+		},
 	}
 
 	for _, tt := range tests {
