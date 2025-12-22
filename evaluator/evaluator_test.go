@@ -261,11 +261,11 @@ func TestMacroCall(t *testing.T) {
 		expected string
 	}{
 		{"let call = macro(x: int) { `$x + 5` }; call(`5`);", "5 + 5"},
-		{"let call = macro(x: string) { `$x + 5` }; call(`this is a long text`);", "this is a long text + 5"},
-		{"let call = macro(y: int, x: string) { `let $x = $y;` }; call(`246 ricow`);", "let ricow = 246;"},
-		{"let call = macro(name: string, param: int) { `$name($param)` }; call(`name245`);", "name(245)"},
+		{"let call = macro(x: idents) { `$x + 5` }; call(`thisisa longtext`);", "thisisa longtext + 5"},
+		{"let call = macro(y: int, skip: space, x: ident) { `let $x = $y;` }; call(`246 ricow`);", "let ricow = 246;"},
+		{"let call = macro(name: ident, param: int) { `$name($param)` }; call(`name245`);", "name(245)"},
 		{
-			"macro(dec: \"def\", name: string, lim: \"(\", param: string, olim: \"):\") { `func $name($param) {}` }(`def fn(input):`)",
+			"macro(dec: \"def\", skip: space, name: ident, lim: \"(\", param: ident, olim: \"):\") { `func $name($param) {}` }(`def fn(input):`)",
 			"func fn(input) {}",
 		},
 	}

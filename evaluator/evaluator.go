@@ -9,6 +9,7 @@ import (
 	"monkey/parser"
 	"monkey/token"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -159,14 +160,43 @@ func buildCall(node *ast.CallExpression, env *object.Environment) object.Object 
 			return arg
 		}
 
-		if _, ok := arg.(*object.String); ok {
-			i := 0
+		if input, ok := arg.(*object.String); ok {
+			for i := 0; i < len(fn.Parameters); i++ {
+				variable := fn.Parameters[i].Value
+				pattern := fn.Patterns[i]
+				text := &object.String{Value: ""}
+				temp := &object.String{Value: ""}
 
-			variable := fn.Parameters[i].Value
-			// pattern := macro.Patterns[i]
-			text := &object.String{Value: ""}
+				var j int
+				var c rune
 
-			mEnv.Set(variable, text)
+				for j, c = range input.Value {
+					char := string(c)
+
+					switch pat := pattern.(type) {
+					case *object.Builtin:
+						temp.Value = text.Value + char
+
+						if ret := pat.Fn(temp); ret.Type() != object.ERROR {
+							text.Value = ret.Inspect()
+							continue
+						}
+					case *object.String:
+						temp.Value += char
+
+						if pat.Value != temp.Value {
+							continue
+						}
+
+						text.Value = temp.Value
+						j++
+					}
+					break
+				}
+
+				input.Value = input.Value[j:]
+				mEnv.Set(variable, text)
+			}
 		}
 
 		ret := Eval(fn.Body, mEnv)
@@ -398,6 +428,57 @@ func buildBuiltin(node *ast.Identifier, env *object.Environment) object.Object {
 				}
 
 				return newError("argument to `int` not supported yet, got %s", args[0].Type())
+			},
+		}
+	case "ident":
+		return &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments for ident. got=%d, want=1", len(args))
+				}
+
+				switch val := args[0].(type) {
+				case *object.String:
+					if m, _ := regexp.MatchString(`^[a-zA-Z_]+$`, val.Value); m {
+						return val
+					}
+				}
+
+				return newError("argument to `ident` not matched, got %s", args[0].Type())
+			},
+		}
+	case "space":
+		return &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments for space. got=%d, want=1", len(args))
+				}
+
+				switch val := args[0].(type) {
+				case *object.String:
+					if m, _ := regexp.MatchString(`^[\s]+$`, val.Value); m {
+						return val
+					}
+				}
+
+				return newError("argument to `space` not matched, got %s", args[0].Type())
+			},
+		}
+	case "idents":
+		return &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments for ident. got=%d, want=1", len(args))
+				}
+
+				switch val := args[0].(type) {
+				case *object.String:
+					if m, _ := regexp.MatchString(`^[a-zA-Z_ ]+$`, val.Value); m {
+						return val
+					}
+				}
+
+				return newError("argument to `idents` not matched, got %s", args[0].Type())
 			},
 		}
 	case "len":
