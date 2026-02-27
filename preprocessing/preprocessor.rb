@@ -84,12 +84,14 @@ class Preprocessor
   end
 end
 
-File.open('example.mky', 'r') do |file|
-  preprocessor = Preprocessor.new
+$*.each do |path|
+  File.open(path, 'r') do |file|
+    preprocessor = Preprocessor.new
 
-  file.each_line do |line|
-    d "LINE: #{line}"
-    line = preprocessor.preprocess(line)
-    print line unless DEBUG
+    file.each_line do |line|
+      d "LINE: #{line}"
+      line = preprocessor.preprocess(line)
+      print line unless DEBUG
+    end
   end
 end
