@@ -12,23 +12,25 @@ def d(message)
   puts message
 end
 
+# Line by line code preprocessor
 class Preprocessor
   def initialize
-    @definitions = {}
+    @definitions = []
     @identation = nil
     @command = nil
     @body = ''
   end
 
+  # @param line [String]
   def preprocess(line)
     @definitions.each do |pattern, definition|
       d "replace: '#{pattern}' with '#{definition}'" if line.include?(pattern)
-      line.gsub!(pattern, definition)
+      line.gsub!(Regexp.new(pattern), definition)
     end
 
-    if /^\s*#define\s+(?<pattern>\w+)\s+(?<definition>.+)$/ =~ line
+    if /^\s*#define\s+(?<pattern>.+)\s+(?<definition>.+)$/ =~ line
       d "definition: #{pattern} => #{definition}"
-      @definitions[pattern.strip] = definition.strip
+      @definitions << [pattern, definition]
       return ''
     elsif !@command && /^\s*(?<identation>#+)(?<command>.*)/ =~ line
       d "command: #{command}"
