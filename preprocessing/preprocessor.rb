@@ -1,6 +1,6 @@
 require 'stringio'
 
-DEBUG = true
+DEBUG = false
 
 def once
   yield
@@ -37,15 +37,10 @@ class Preprocessor
       return ''
     elsif @command && /^\s*#{@identation}(?!#)(?<close>.*)/ =~ line
       bprocessor = Preprocessor.new
-      d "preprocess: #{@command}"
-      d "body: #{@body}"
-
-      body = ''
       close = $~[:close]
-      @body.each_line do |line|
-        line = bprocessor.preprocess(line)
-        body << line unless line.strip.empty?
-      end
+
+      d "execute: #{@command}"
+      d "body: #{@body}"
 
       captured = StringIO.new
       original = $stdout
@@ -55,7 +50,7 @@ class Preprocessor
         eval <<~COMMAND
           #{@command}
           print <<~HEREDOC
-          #{body}
+          #{@body}
           HEREDOC
           #{close}
         COMMAND
@@ -65,7 +60,17 @@ class Preprocessor
         @body = ''
       end
 
-      return captured.string
+      output = captured.string
+      body = ''
+
+      d "preprocess: #{output}"
+
+      output.each_line do |line|
+        line = bprocessor.preprocess(line)
+        body << line unless line.strip.empty?
+      end
+
+      return body
     elsif @command
       d "append to body: #{line}"
       @body += line unless line.strip.empty?

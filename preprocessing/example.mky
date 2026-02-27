@@ -5,7 +5,7 @@
 
 let main#{i} = fn() {
 	print("running function ", "main", #{i})
-	##3.times do |j|
+	###{i}.times do |j|
 		### once do
 		let n = \#{j}
 		### end
