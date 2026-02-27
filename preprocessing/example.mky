@@ -1,0 +1,21 @@
+#define print echo
+#define run true
+
+#(1..3).each do |i|
+
+let main#{i} = fn() {
+	##3.times do |j|
+		### once do
+		let n = \#{j}
+		### end
+		print("hi there ", n, "!")
+	##end
+}
+
+#end
+
+#if run
+main1()
+main2()
+main3()
+#end

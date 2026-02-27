@@ -1,0 +1,13 @@
+
+// print console.log
+// readlines(\1) read(\1).split('\n')
+// trap ... try { ... } catch { ... }
+// ....forEach(\params => ...) for (let \params of ...) { ... }
+// abort \val if (\val !== undefined) throw \val;
+
+let err = trap readlines('file.txt').forEach(line => {
+	print(line);
+});
+abort err;
+
+print("Read file successfully!");

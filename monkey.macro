@@ -1,0 +1,48 @@
+// TODO: Show equivalent on rust and ruby fro comparison
+
+// If we could see the macro visualization, on how it build stuff. that would make it. that'd be it
+
+let exp = macro(text) { trap(argc(text)) }
+
+let trap = macro(text: `trap\s*{\s*(.*)\s*}`) {
+	`
+	try:
+		$(exp $it)
+	except Exception as e:
+		print(f"Error! {e}")
+	`
+}
+
+let declaration = macro(text) {
+	if var, expression = text(`(\w+)\s*=\s*(.*)`) { // Will give you patterns without match
+		return `$var = $(exp $expression)`
+	}
+}
+
+let declarations = macro(text) {
+	text[`\w+\s*=\s*.*`].each { text[it] = declaration text[it] }
+}
+
+let argc = macro(text) {
+	for match, path in text[`@argc\((.*)\)`] { // Will give you match, + patterns
+		text[match] = `"""\n$(read(path))\n"""`
+	}
+}
+
+let python = macro(text) {
+	text = declarations text
+	for match in text[`trap\s*{\s*(.*)\s*}`] {
+		text[match] = trap text[match]
+	}
+}
+
+python `
+import json
+
+path = @argc("path")
+
+trap {
+	f = json.loads(path)
+	print(f["config"])
+}
+`

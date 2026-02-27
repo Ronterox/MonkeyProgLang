@@ -1,6 +1,6 @@
 eval(read("examples/functions.mky"))
 
-let trap = macro(body: string, end: ["\n", ";"]) {
+let trap = macro(body: string) {
 	`
 	try:
 		$body
