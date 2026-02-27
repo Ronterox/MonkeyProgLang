@@ -12,18 +12,21 @@ def d(message)
   puts message
 end
 
-def run
+# Captures stdout and returns it as a string
+# @return [String]
+def capture_stdout
   old = $stdout
   $stdout = StringIO.new
-
   begin
     yield
   ensure
     output = $stdout.string
     $stdout = old
-    eval output
   end
+  output
 end
+
+def run(&block) = eval(capture_stdout(&block), TOPLEVEL_BINDING)
 
 # Line by line code preprocessor
 class Preprocessor
@@ -57,11 +60,7 @@ class Preprocessor
       d "execute: #{@command}"
       d "body: #{@body}"
 
-      captured = StringIO.new
-      original = $stdout
-      $stdout = captured
-
-      begin
+      output = capture_stdout do
         eval <<~COMMAND
           #{@command}
           print <<HEREDOC
@@ -69,24 +68,15 @@ class Preprocessor
           HEREDOC
           #{close}
         COMMAND
-      ensure
-        $stdout = original
-        @identation = nil
-        @command = nil
-        @body = ''
       end
 
-      output = captured.string
-      body = ''
+      @identation = nil
+      @command = nil
+      @body = ''
 
       d "preprocess: #{output}"
 
-      output.each_line do |line|
-        line = bprocessor.preprocess(line)
-        body << line unless line.strip.empty?
-      end
-
-      return body
+      return output.each_line.map(&bprocessor.method(:preprocess)).join
     elsif @command
       d "append to body: #{line}"
       @body += line unless line.strip.empty?
