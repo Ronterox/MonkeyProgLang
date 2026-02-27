@@ -51,13 +51,14 @@ class Preprocessor
       begin
         eval <<~COMMAND
           #{@command}
-          print <<~HEREDOC
+          print <<HEREDOC
           #{@body}
           HEREDOC
           #{close}
         COMMAND
       ensure
         $stdout = original
+        @identation = nil
         @command = nil
         @body = ''
       end

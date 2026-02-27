@@ -7,7 +7,7 @@ let main#{i} = fn() {
 	print("running function ", "main", #{i})
 	###{i}.times do |j|
 		### once do
-		let n = \#{j}
+		let n = \#{j} + 1
 		### end
 		print("hi there ", n, "!")
 	##end
