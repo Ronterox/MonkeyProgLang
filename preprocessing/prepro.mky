@@ -1,0 +1,9 @@
+#define print\( echo(
+
+print("hi there")
+
+#run do
+3.times do |i|
+	puts "Test \#{i}"
+end
+#end

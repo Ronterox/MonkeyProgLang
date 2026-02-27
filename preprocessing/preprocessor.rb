@@ -12,6 +12,19 @@ def d(message)
   puts message
 end
 
+def run
+  old = $stdout
+  $stdout = StringIO.new
+
+  begin
+    yield
+  ensure
+    output = $stdout.string
+    $stdout = old
+    eval output
+  end
+end
+
 # Line by line code preprocessor
 class Preprocessor
   def initialize
