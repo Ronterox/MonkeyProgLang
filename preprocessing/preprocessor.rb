@@ -1,6 +1,7 @@
+#!/usr/bin/env ruby
 require 'stringio'
 
-DEBUG = false
+DEBUG = ARGV.any? { |arg| ['-d', '--debug'].include?(arg) }
 
 def once
   yield
@@ -40,7 +41,7 @@ class Preprocessor
   # @param line [String]
   def preprocess(line)
     substitutions = @definitions.count do |pattern, definition|
-      line.gsub!(pattern, definition).tap { d "replace: '#{pattern}' with '#{definition}'" }
+      line.gsub!(pattern, definition).tap { |v| d "replace: '#{pattern}' with '#{definition}'" if v }
     end
 
     return line.each_line.map { |l| preprocess(l) }.join if substitutions.positive?
@@ -88,8 +89,10 @@ class Preprocessor
   end
 end
 
-$*.each do |path|
-  File.open(path, 'r') do |file|
+ARGV.each do |arg|
+  next if ['-d', '--debug'].include?(arg)
+
+  File.open(arg, 'r') do |file|
     preprocessor = Preprocessor.new
 
     file.each_line do |line|

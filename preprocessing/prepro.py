@@ -26,7 +26,7 @@ Person = class (name: str, age: int, gender: str)
 
 """%
 # run do
-3.times do | i|
+3.times do |i|
     generate_dataclass("Carlitos\#{i}", 'power:float,level:int')
 end
 # end
