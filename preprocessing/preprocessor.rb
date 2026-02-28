@@ -45,7 +45,7 @@ class Preprocessor
 
     return line.each_line.map { |l| preprocess(l) }.join if substitutions.positive?
 
-    if /^\s*#define\s+(?<pattern>.+?)\s+(?<definition>.+)$/ =~ line
+    if /^\s*#\s*define\s+(?<pattern>.+?)\s+(?<definition>.+)$/ =~ line
       d "definition: #{pattern} => #{definition}"
       @definitions << [Regexp.new(pattern), "\"#{definition}\"".undump]
       return ''

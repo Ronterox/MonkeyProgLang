@@ -1,7 +1,10 @@
+# define """% \1
+# define %""" \1
+
 """
 #run do
 def generate_dataclass(name, fields)
-    puts "from dataclasses import dataclass\n\n@dataclass\nclass \#{name}:"
+    puts "\nfrom dataclasses import dataclass\n\n@dataclass\nclass \#{name}:"
     fields.split(',').each do |field|
         name, type = field.split(':')
         puts "    \#{name.strip}: \#{type.strip}"
@@ -14,10 +17,24 @@ end
 #define \}$ pass
 #define fn(\s+) def\1
 #define (\w+)\s*=\s*class\s*\((.*)\) #run do\ngenerate_dataclass('\1','\2')\n#end
+#define catch\s+(.*) try:\n\t\1\nexcept:\n\tpass
+
 """
 
 
 Person = class (name: str, age: int, gender: str)
+
+"""%
+# run do
+3.times do | i|
+    generate_dataclass("Carlitos\#{i}", 'power:float,level:int')
+end
+# end
+%"""
+
+# 3.times do |i|
+print("Test #{i}")
+# end
 
 
 def visualize(person: Person):
@@ -30,7 +47,5 @@ fn looptwice(person: Person) {
     }
 }
 
-
-me = Person("Rontero", 25, "Male")
-
-looptwice(me)
+catch name, age, gender = open("file.txt", "r").read().split()
+looptwice(Person(name, int(age), gender))
