@@ -5,12 +5,18 @@ require 'irb/ruby-lex'
 def can_evaluate_command?(command)
   ['end', '}', ')'].each do |end_word|
     full_command = "#{command}\n#{end_word}"
-    if Ripper.sexp(full_command)
+    next unless Ripper.sexp(full_command)
+
+    begin
       eval(full_command, TOPLEVEL_BINDING)
-      return true
+    rescue StandardError
+      return nil
     end
+
+    return true
   end
-  false
+
+  nil
 end
 
 OPTIONS = ['-d', '--debug'].freeze

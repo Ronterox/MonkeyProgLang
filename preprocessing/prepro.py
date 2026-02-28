@@ -36,6 +36,7 @@ print("Test #{i}")
 # end
 
 
+# idk what to do
 def visualize(person: Person):
     print(f"{person.name} is {person.age} years old and {person.gender}")
 
@@ -46,5 +47,6 @@ fn looptwice(person: Person) {
     }
 }
 
+name, age, gender = "Default", "0", "Default"
 catch name, age, gender = open("file.txt", "r").read().split()
 looptwice(Person(name, int(age), gender))
