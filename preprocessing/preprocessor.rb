@@ -1,7 +1,20 @@
 #!/usr/bin/env ruby
 require 'stringio'
+require 'irb/ruby-lex'
 
-DEBUG = ARGV.any? { |arg| ['-d', '--debug'].include?(arg) }
+def can_evaluate_command?(command)
+  ['end', '}', ')'].each do |end_word|
+    full_command = "#{command}\n#{end_word}"
+    if Ripper.sexp(full_command)
+      eval(full_command, TOPLEVEL_BINDING)
+      return true
+    end
+  end
+  false
+end
+
+OPTIONS = ['-d', '--debug'].freeze
+DEBUG = ARGV.any? { |arg| OPTIONS.include?(arg.downcase) }
 
 def once
   yield
@@ -31,8 +44,8 @@ def run(&block) = eval(capture_stdout(&block), TOPLEVEL_BINDING)
 
 # Line by line code preprocessor
 class Preprocessor
-  def initialize
-    @definitions = []
+  def initialize(definitions = [])
+    @definitions = definitions
     @identation = nil
     @command = nil
     @body = ''
@@ -40,7 +53,9 @@ class Preprocessor
 
   # @param line [String]
   def preprocess(line)
+    # d "definitions: #{@definitions.length}"
     substitutions = @definitions.count do |pattern, definition|
+      # d "pattern: #{pattern} #{line.match?(pattern) ? 'matches' : 'does not match'}"
       line.gsub!(pattern, definition).tap { |v| d "replace: '#{pattern}' with '#{definition}'" if v }
     end
 
@@ -52,15 +67,18 @@ class Preprocessor
       return ''
     elsif !@command && /^\s*(?<identation>#+)(?<command>.*)/ =~ line
       d "command: #{command}"
-      @command = command.strip
-      @identation = identation
+      if can_evaluate_command?(command)
+        @command = command.strip
+        @identation = identation
+      end
       return ''
     elsif @command && /^\s*#{@identation}(?!#)(?<close>.*)/ =~ line
-      bprocessor = Preprocessor.new
+      bprocessor = Preprocessor.new(@definitions)
       close = $~[:close]
 
       d "execute: #{@command}"
       d "body: #{@body}"
+      d "close: #{close}"
 
       output = capture_stdout do
         eval <<~COMMAND
@@ -90,7 +108,7 @@ class Preprocessor
 end
 
 ARGV.each do |arg|
-  next if ['-d', '--debug'].include?(arg)
+  next if OPTIONS.include?(arg)
 
   File.open(arg, 'r') do |file|
     preprocessor = Preprocessor.new

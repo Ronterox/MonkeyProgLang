@@ -18,10 +18,9 @@ end
 #define fn(\s+) def\1
 #define (\w+)\s*=\s*class\s*\((.*)\) #run do\ngenerate_dataclass('\1','\2')\n#end
 #define catch\s+(.*) try:\n\t\1\nexcept:\n\tpass
-
 """
 
-
+# This is a code generated class
 Person = class (name: str, age: int, gender: str)
 
 """%
